@@ -35,6 +35,12 @@ A technology-driven solution to make waste collection, monitoring, and disposal 
 
 ## 📂 Project Structure  
 
+smart-waste-management/
+├── frontend/ # React app
+├── backend/ # Node.js API
+├── docs/ # Documentation
+└── README.md
+
 
 ---
 
