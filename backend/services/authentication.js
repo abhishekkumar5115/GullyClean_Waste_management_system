@@ -1,14 +1,16 @@
 const jwt = require('jsonwebtoken');
-const userModel = require('../models/user');
 const secretKey = process.env.JWT_SECRET;
 
-function generateToken(user) {
+function generateToken(res,user) {
     const payload = {
         id: user._id,
-        username: user.username,
         role: user.role
     };
     const token = jwt.sign(payload, secretKey, { expiresIn: '7d' });
+    res.cookie('jwt', token, { httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production', 
+        sameSite: 'Strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000 });
     return token;
 }
 

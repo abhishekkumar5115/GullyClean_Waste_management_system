@@ -1,79 +1,58 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-// import api from "../api"; // Assuming you have an api.js file for axios instance
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import api from '../api/api';
 
-
-// Async thunk to fetch bins from the server
-export const fetchBins = createAsyncThunk(
-    "bin/fetchBins",
-    async (_, thunkAPI) => {
-      try {
+export const fetchBins = createAsyncThunk('bins/fetchAll', async (_, thunkAPI) => {
+    try {
         const response = await api.get('/bins');
-        return response.data; // expect an array of bins
-      } catch (err) {
-        return thunkAPI.rejectWithValue(err.response?.data || err.message);
-      }
+        return response.data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue('Could not fetch bins');
     }
-  );
+});
 
-const initialState = {
-    bins:[],
-    status: "idle",     // 'idle' | 'loading' | 'succeeded' | 'failed'
-    error: null,
-    binData: {
-        id: null,
-        status: "empty",
-        location: "",
-        lastEmptied:"",
+export const fetchBinById = createAsyncThunk('bins/fetchById', async (id, thunkAPI) => {
+    try {
+        const response = await api.get(`/bins/${id}`);
+        return response.data;
+    } catch (error) {
+        return thunkAPI.rejectWithValue('Could not fetch bin');
     }
-    
-}
+});
 
 const binSlice = createSlice({
     name: 'bin',
-    initialState,
-    reducers:{
-        setBins: (state, action) => {
-            state.bins = action.payload;
-        },
-        addBin: (state, action) => {
-            state.bins.push(action.payload);
-        },
-        removeBin: (state, action) => {
-            state.bins = state.bins.filter(bin => bin.id !== action.payload);
-        },
-        setBin: (state, action) => {
-            state.binData = action.payload;
-        },
-        clearBin: (state)=>{
-            state.binData.status = "empty";
-        },
-        setFull: (state) => {
-            state.binData.status = "full";
-        },
-        setEmpty: (state) => {
-            state.binData.status = "empty";
-        },
-        updateLastEmptied: (state, action) => {
-            state.binData.lastEmptied = action.payload; 
-        },
-
+    initialState: {
+        bins: [],
+        currentBin: null,
+        status: 'idle',
+        error: null
     },
-    extraReducers: (builder) => {
+    reducers: {},
+    extraReducers: builder => {
         builder
-          .addCase(fetchBins.pending, (state) => {
-            state.status = 'loading';
-            state.error = null;
-          })
-          .addCase(fetchBins.fulfilled, (state, action) => {
-            state.status = 'succeeded';
-            state.bins = action.payload;
-          })
-          .addCase(fetchBins.rejected, (state, action) => {
-            state.status = 'failed';
-            state.error = action.payload;
-          });
-      },
-})
+            .addCase(fetchBins.pending, state => {
+                state.status = 'loading';
+            })
+            .addCase(fetchBins.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.bins = action.payload;
+            })
+            .addCase(fetchBins.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload;
+            })
+            .addCase(fetchBinById.pending, state => {
+                state.status = 'loading';
+            })
+            .addCase(fetchBinById.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.currentBin = action.payload;
+            })
+            .addCase(fetchBinById.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.payload;
+            })
+    }
+});
 
-export const {setBin, clearBin, setFull, setEmpty, updateLastEmptied,setBins,addBin,removeBin} = binSlice.actions;
 export default binSlice.reducer;

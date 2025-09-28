@@ -1,53 +1,44 @@
-import React,{useEffect} from 'react'
-import { useSelector,useDispatch } from 'react-redux'
-import { Link } from 'react-router-dom'
-import { Trash2 } from 'lucide-react'
-import { fetchBins } from '../../store/binSlice'
-import BinItems from './BinItems'
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchBins } from '../../store/binSlice';
+import BinCard from './BinCard';
+import Spinner from '../common/spinner';
 
-function BinList() {
+const BinList = ({ limit }) => {
     const dispatch = useDispatch();
     const { bins, status, error } = useSelector((state) => state.bin);
 
     useEffect(() => {
-        if (status === "idle") {
-          dispatch(fetchBins());
+        if (status === 'idle') {
+            dispatch(fetchBins());
         }
     }, [status, dispatch]);
 
-    if (status === "loading") {
-        return (
-          <div className="flex justify-center items-center h-64">
-            <span className="loading loading-spinner loading-lg"></span>
-          </div>
-        );
+    if (status === 'loading') {
+        return <Spinner />;
     }
 
-    if (status === "failed") {
-        return (
-          <div className="text-center text-red-600 mt-10">
-            Error loading bins: {error}
-          </div>
-        );
+    if (status === 'failed') {
+        return <div className="text-center text-red-500">{error}</div>;
     }
 
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-4">
-      {bins.map((bin) => (
-        <div
-          key={bin.id}
-          className={`border p-4 rounded-lg shadow ${
-            bin.status === 'full' ? 'bg-red-100' : 'bg-green-100'
-          }`}
-        >
-          <h2 className="text-xl font-bold">Bin ID: {bin.id}</h2>
-          <p>Status: <span className="font-semibold">{bin.status}</span></p>
-          <p>Location: {bin.location}</p>
-          <p>Last Emptied: {bin.lastEmptied || 'N/A'}</p>
+    const displayBins = limit ? bins.slice(0, limit) : bins;
+
+    return (
+        <div>
+            {displayBins.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {displayBins.map((bin) => (
+                        <BinCard key={bin._id} bin={bin} />
+                    ))}
+                </div>
+            ) : (
+                <div className="text-center py-10">
+                    <p className="text-neutral-500">No bins found.</p>
+                </div>
+            )}
         </div>
-      ))}
-    </div>
-  )
-}
+    );
+};
 
-export default BinList
+export default BinList;

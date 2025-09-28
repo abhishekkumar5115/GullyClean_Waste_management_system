@@ -1,82 +1,119 @@
-// src/components/pickups/PickupList.jsx
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchPickups } from '../../store/pickupSlice';
-import AssignModal from './AssignModal'; // you can create this to handle assignment
-import PickupItem from './PickupItems'; // component to display each pickup item
+import { fetchPickups, assignPickup } from '../../store/pickupSlice';
+import { fetchWorkers } from '../../store/authSlice';
+import Spinner from '../common/spinner';
+import { UserCheck, Calendar, MapPin } from 'lucide-react';
 
-export default function PickupList() {
-  const dispatch = useDispatch();
-  const { list, status, error } = useSelector((state) => state.pickup);
-  const [selected, setSelected] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const PickupList = () => {
+    const dispatch = useDispatch();
+    const { pickups, status } = useSelector(state => state.pickup);
+    const { workers } = useSelector(state => state.auth);
+    const [selectedPickup, setSelectedPickup] = useState(null);
+    const [selectedWorker, setSelectedWorker] = useState('');
 
-  useEffect(() => {
-    if (status === 'idle') {
-      dispatch(fetchPickups());
+    useEffect(() => {
+        dispatch(fetchPickups());
+        dispatch(fetchWorkers());
+    }, [dispatch]);
+    
+    const handleAssign = () => {
+        dispatch(assignPickup({ pickupId: selectedPickup._id, workerId: selectedWorker }));
+        document.getElementById('assign_modal').close();
     }
-  }, [status, dispatch]);
 
-  if (status === 'loading') {
+    if (status === 'loading') return <Spinner />;
+
     return (
-      <div className="flex justify-center items-center h-64">
-        <span className="loading loading-spinner loading-lg" />
-      </div>
+        <>
+            <div className="overflow-x-auto rounded-2xl shadow-lg">
+                <table className="table w-full">
+                    <thead className="bg-primary text-primary-content">
+                        <tr>
+                            <th className="rounded-tl-2xl">Bin Location</th>
+                            <th>Status</th>
+                            <th>Requested By</th>
+                            <th>Assigned To</th>
+                            <th className="rounded-tr-2xl">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {pickups.map(pickup => (
+                            <tr key={pickup._id} className="hover:bg-base-200 transition-colors">
+                                <td>
+                                  <div className="flex items-center gap-2">
+                                    <MapPin size={16} className="text-primary" />
+                                    {pickup.bin.location}
+                                  </div>
+                                </td>
+                                <td>
+                                  <span className={`badge ${
+                                      pickup.status === 'pending' ? 'badge-warning' :
+                                      pickup.status === 'assigned' ? 'badge-info' : 'badge-success'
+                                  }`}>
+                                    {pickup.status}
+                                  </span>
+                                </td>
+                                <td>{pickup.user.name}</td>
+                                <td>
+                                  {pickup.assignedTo ? (
+                                    <div className="flex items-center gap-2">
+                                      <UserCheck size={16} className="text-success" />
+                                      {pickup.assignedTo.name}
+                                    </div>
+                                  ) : (
+                                    'Unassigned'
+                                  )}
+                                </td>
+                                <td>
+                                    {pickup.status === 'pending' && (
+                                        <button 
+                                          className="btn btn-sm btn-primary gap-2"
+                                          onClick={() => {
+                                              setSelectedPickup(pickup);
+                                              document.getElementById('assign_modal').showModal();
+                                          }}
+                                        >
+                                          <UserCheck size={16} />
+                                          Assign
+                                        </button>
+                                    )}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Assign Worker Modal */}
+            <dialog id="assign_modal" className="modal">
+                <div className="modal-box rounded-2xl">
+                    <h3 className="font-bold text-lg">Assign Worker</h3>
+                    <div className="py-4">
+                        <select 
+                          className="select select-bordered w-full rounded-lg" 
+                          value={selectedWorker} 
+                          onChange={e => setSelectedWorker(e.target.value)}
+                        >
+                            <option disabled value="">Select a worker</option>
+                            {workers.map(worker => (
+                                <option key={worker._id} value={worker._id}>{worker.name}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="modal-action">
+                        <button className="btn btn-ghost rounded-lg" onClick={() => document.getElementById('assign_modal').close()}>
+                          Cancel
+                        </button>
+                        <button className="btn btn-primary rounded-lg gap-2" onClick={handleAssign}>
+                          <UserCheck size={16} />
+                          Assign
+                        </button>
+                    </div>
+                </div>
+            </dialog>
+        </>
     );
-  }
+};
 
-  if (status === 'failed') {
-    return (
-      <div className="text-center text-red-600 mt-10">
-        Error loading pickups: {error}
-      </div>
-    );
-  }
-
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-semibold mb-4">Pending Pickups</h1>
-      {list.length === 0 ? (
-        <p className="text-gray-500">No pickup requests found.</p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="table w-full">
-            <thead>
-              <tr>
-                <th>Request ID</th>
-                <th>Bin ID</th>
-                <th>Requester</th>
-                <th>Scheduled For</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-    <tbody>
-     {list.map((pickup) => (
-     <PickupItem
-      key={pickup.id}
-      pickup={pickup}
-      onAssign={(p) => {
-        setSelected(p);
-        setIsModalOpen(true);
-      }}
-      onView={(p) => {
-        // navigate or open view modal
-      }}
-    />
-  ))}
-  </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Assignment Modal */}
-      {isModalOpen && (
-        <AssignModal
-          pickup={selected}
-          onClose={() => setIsModalOpen(false)}
-        />
-      )}
-    </div>
-  );
-}
+export default PickupList;

@@ -1,73 +1,28 @@
-const {model, Schema} = require('mongoose');
+const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const { generateToken} = require('../services/authentication');
 
-const userSchema = new Schema({
-    name: {
-        type: String,
-        required: true,
-    },
-    password: {
-        type: String,
-        required: true
-    },
-    salt:   {
-        type: String,
-    },
-    email: {
-        type: String,
-        unique: true,
-        sparse:true
-    },
-    phone: {
-        type: String,
-        unique: true,
-        sparse:true
-    },
-    role:{
-        type: String,
-        enum: ['admin', 'citizen','worker'],
-        default: 'citizen',
-        required: true
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
+const userSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    phone: { type: String, sparse: true },
+    password: { type: String, required: true },
+    role: { type: String, enum: ['citizen', 'worker', 'admin'], default: 'citizen' },
+}, { timestamps: true });
+
+// Hash password before saving
+userSchema.pre('save', async function (next) {
+    if (!this.isModified('password')) {
+        return next();
     }
-},{timestamps: true});
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+});
 
-// Pre-save hook to hash password and generate salt
-userSchema.pre('save', async function(next){
-    const user = this;
-    if(!user.isModified('password')) return next();
-    try{
-        user.salt = await bcrypt.genSalt(10);
-        user.password = await bcrypt.hash(user.password, user.salt);
-        next();
-    }
-    catch(err){
-        console.error('Error hashing password:', err);
-        next(err);
-    }
-})
+// Method to compare passwords
+userSchema.methods.matchPassword = async function (enteredPassword) {
+    return await bcrypt.compare(enteredPassword, this.password);
+};
 
-// Method to compare password
-userSchema.static("matchpassword",  async function ({email, phone, password}) {
-    const user = await this.findOne({
-        $or: [
-            email ? {email} : null,
-            phone ? {phone} : null  
-        ].filter(Boolean)
-    });
-    if(!user) throw new Error('User not found')
-        // Compare the provided password with the hashed password;
-    const isMatch = await bcrypt.compare(password, user.password);
-    if(!isMatch) throw new Error('Invalid password');
-
-    const token = generateToken(user);
-    return token;
-})
-
-const User = model('User', userSchema);
-
+const User = mongoose.model('User', userSchema);
 module.exports = User;

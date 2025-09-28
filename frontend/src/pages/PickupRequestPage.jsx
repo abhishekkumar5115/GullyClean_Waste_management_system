@@ -1,12 +1,16 @@
-// src/pages/PickupRequestPage.jsx
 import React from 'react';
-import PickupRequestForm from '../components/pickupcomponents/PickupRequestForm';
+import PickupRequestForm from '../components/pickupcomponents/Pickuprequestform';
 
-export default function PickupRequestPage() {
-  return (
-    <div className="p-6 max-w-lg mx-auto">
-      <h1 className="text-2xl font-semibold mb-4">Request a Pickup</h1>
-      <PickupRequestForm />
-    </div>
-  );
-}
+const PickupRequestPage = () => {
+    return (
+        <div className="flex flex-col items-center">
+            <div className="text-center mb-8">
+                <h1 className="text-4xl font-bold">Request a Pickup</h1>
+                <p className="text-lg text-neutral-500 mt-2">Report a full bin and help us keep our city clean.</p>
+            </div>
+            <PickupRequestForm />
+        </div>
+    );
+};
+
+export default PickupRequestPage;

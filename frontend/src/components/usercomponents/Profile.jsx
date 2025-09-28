@@ -1,84 +1,50 @@
-import React,{useState} from 'react'
-import {useSelector,useDispatch} from 'react-redux'
-import {useNavigate} from 'react-router-dom'
-import {updateProfile} from '../../store/authSlice'
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { User, Mail, Phone, Award, Calendar } from 'lucide-react';
 
-function Profile() {
-    const dispatch = useDispatch()
-    const navigate = useNavigate()
-    const {user} = useSelector((state) => state.auth)
-    const [formdata,setFormdata] = useState({
-        name : user?.name || "",
-        email: user?.email || "",
-       
-    })
-    const [editing , setEditing] = useState(false)
-    const handleChange = (e) => {
-        setFormdata((prev) => ({...prev,[e.target.name]: e.target.value}))
-    }
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        dispatch(updateProfile(formdata))
-        setEditing(false)
+const Profile = () => {
+    const { user } = useSelector((state) => state.auth);
+
+    if (!user) {
+        return <div>Loading profile...</div>;
     }
 
-  return (
-    <div className="max-w-xl mx-auto p-6 bg-white shadow rounded-lg">
-      <h2 className="text-2xl font-semibold mb-4">My Profile</h2>
-      {!editing ? (
-        <div>
-          <p><strong>Name:</strong> {user.name}</p>
-          <p><strong>Email:</strong> {user.email}</p>
-          <button
-            onClick={() => setEditing(true)}
-            className="btn btn-secondary btn-sm mt-4"
-          >
-            Edit Profile
-          </button>
+    return (
+        <div className="card bg-base-100 shadow-xl rounded-2xl overflow-hidden">
+            <div className="card-body items-center text-center p-6">
+                <div className="avatar mb-4">
+                    <div className="w-24 rounded-full bg-gradient-to-r from-primary to-secondary p-1">
+                         <img 
+                           src={`https://ui-avatars.com/api/?name=${user.name.replace(/\s/g, '+')}&background=random&color=fff&size=128&bold=true`} 
+                           alt="User Avatar" 
+                           className="rounded-full"
+                         />
+                    </div>
+                </div>
+                <h2 className="card-title text-3xl bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                  {user.name}
+                </h2>
+                <span className="badge badge-secondary badge-lg gap-1 mt-2">
+                  <Award size={14} />
+                  {user.role}
+                </span>
+                <div className="mt-6 text-left space-y-4 w-full">
+                    <p className="flex items-center gap-3 p-3 bg-base-200 rounded-lg">
+                      <Mail className="text-primary"/> 
+                      <span className="font-medium">{user.email}</span>
+                    </p>
+                    <p className="flex items-center gap-3 p-3 bg-base-200 rounded-lg">
+                      <Phone className="text-primary"/> 
+                      <span>{user.phone || 'No phone number provided'}</span>
+                    </p>
+                    <p className="flex items-center gap-3 p-3 bg-base-200 rounded-lg">
+                      <Calendar className="text-primary"/> 
+                      <span>Member since {new Date(user.createdAt).toLocaleDateString()}</span>
+                    </p>
+                </div>
+            </div>
         </div>
-      ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium">Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="input input-bordered w-full"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="input input-bordered w-full"
-              required
-            />
-          </div>
-          <div className="flex space-x-2">
-            <button
-              type="submit"
-              className="btn btn-primary"
-            >
-              Save
-            </button>
-            <button
-              type="button"
-              onClick={() => setEditing(false)}
-              className="btn btn-ghost"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      )}
-    </div>
-  )
-}
+    );
+};
 
-export default Profile
+export default Profile;

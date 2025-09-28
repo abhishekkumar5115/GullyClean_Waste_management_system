@@ -1,31 +1,54 @@
-if(process.env.NODE_ENV != "production"){
-    require('dotenv').config();
-}
 const express = require('express');
-const bodyParser = require('body-parser');
 const cors = require('cors');
-const mongodb = require('./config/db');
-const userRoutes = require('./routes/user.routes');
-const cookieparser = require('cookie-parser');
+const cookieParser = require('cookie-parser');
+const dotenv = require('dotenv');
+const path = require('path');
+const connectDB = require('./config/db');
+
+// Load environment variables
+dotenv.config();
+
+// Connect to the database
+connectDB();
+
+// Initialize Express app
 const app = express();
-const port = process.env.PORT || 3000;
 
 
-// cors configuration
-const corsOptions = {
-    origin: 'http://localhost:5173',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    optionsSuccessStatus: 200,
-    credentials: true, // Allow cookies to be sent with requests
+// Middleware setup
+app.use(cors({
+  origin: 'http://localhost:5173', // Allow frontend to connect
+  credentials: true,
+}));
+
+// Body parsers
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+
+// API Routes
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/bins', require('./routes/binRoutes'));
+app.use('/api/pickups', require('./routes/pickupRoutes'));
+
+// --- Deployment Setup ---
+// Serve static files from the React app in production
+if (process.env.NODE_ENV === 'production') {
+  const __dirname = path.resolve();
+  app.use(express.static(path.join(__dirname, '/frontend/dist')));
+
+  // Serve the index.html file for any other requests
+  app.get('*', (req, res) =>
+    res.sendFile(path.resolve(__dirname, 'frontend', 'dist', 'index.html'))
+  );
+} else {
+  app.get('/', (req, res) => {
+    res.send('API is running....');
+  });
 }
-app.use(cors(corsOptions));
-app.use(cookieparser());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// --------------------
 
-
-app.use('/user', userRoutes);
-
-
-app.listen(port, () => { console.log(`Server is running on port ${port}`);
-});
+// Define the port and start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
