@@ -1,4 +1,4 @@
-const User = require('../models/User');
+const User = require('../models/user');
 const {generateToken} = require('../services/authentication');
 
 
@@ -36,7 +36,6 @@ const loginUser = async (req, res) => {
   }
 
   const isMatch = await user.matchPassword(password);
-  console.log('Entered:', password, 'Hashed:', user.password, 'Match:', isMatch);
 
   if (!isMatch) {
     return res.status(401).json({ message: 'Invalid password' });
@@ -49,6 +48,7 @@ const loginUser = async (req, res) => {
     email: user.email,
     phone: user.phone,
     role: user.role,
+    createdAt : user.createdAt
   });
 };
 

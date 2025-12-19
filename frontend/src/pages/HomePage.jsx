@@ -29,19 +29,19 @@ const HomePage = () => {
 
   const features = [
     {
-      icon: <Map className="text-white" size={28} />,
+      icon: <Map className="text-black" size={28} />,
       title: "Real-time Monitoring",
       description: "Live tracking of bin fill levels across the city with instant updates",
       gradient: "from-blue-500 to-cyan-500"
     },
     {
-      icon: <Truck className="text-white" size={28} />,
+      icon: <Truck className="text-black" size={28} />,
       title: "Smart Routing",
       description: "AI-optimized collection routes to save time, fuel, and reduce emissions",
       gradient: "from-green-500 to-emerald-500"
     },
     {
-      icon: <Shield className="text-white" size={28} />,
+      icon: <Shield className="text-black" size={28} />,
       title: "Community Driven",
       description: "Join thousands of citizens actively keeping our city clean and green",
       gradient: "from-purple-500 to-pink-500"
@@ -161,7 +161,7 @@ const HomePage = () => {
         {/* Stats Section */}
         <section className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-20">
-            <h2 className="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-8">
+            <h2 className="text-5xl lg:text-6xl font-bold bg-gray-600 bg-clip-text text-transparent mb-8">
               Making a Real Impact
             </h2>
             <p className="text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
@@ -198,7 +198,7 @@ const HomePage = () => {
         {/* Features Section */}
         <section className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-24">
-            <h2 className="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-8">
+            <h2 className="text-5xl lg:text-6xl font-bold bg-gray-600 bg-clip-text text-transparent mb-8">
               Why Choose SmartWaste?
             </h2>
             <p className="text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
@@ -229,7 +229,7 @@ const HomePage = () => {
         {/* How It Works Section */}
         <section className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-24">
-            <h2 className="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-8">
+            <h2 className="text-5xl lg:text-6xl font-bold bg-gray-600 bg-clip-text text-transparent mb-8">
               How It Works
             </h2>
             <p className="text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
@@ -281,7 +281,7 @@ const HomePage = () => {
         {/* Live Bin Status Section */}
         <section className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-20">
-            <h2 className="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-8">
+            <h2 className="text-5xl lg:text-6xl font-bold bg-gray-600 bg-clip-text text-transparent mb-8">
               Live Bin Status
             </h2>
             <p className="text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
@@ -297,7 +297,7 @@ const HomePage = () => {
           <div className="text-center">
             <Link 
               to="/bins" 
-              className="group inline-flex items-center gap-4 bg-gradient-to-r from-blue-500 to-green-600 text-white px-12 py-5 rounded-2xl font-semibold text-lg shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 transition-all duration-300"
+              className="group inline-flex items-center gap-4 bg-green-600 text-white px-12 py-5 rounded-2xl font-semibold text-lg shadow-2xl hover:shadow-3xl transform hover:-translate-y-2 transition-all duration-300"
             >
               <Map size={24} />
               View All Smart Bins 
@@ -308,7 +308,7 @@ const HomePage = () => {
 
         {/* Final CTA Section */}
         <section className="max-w-6xl mx-auto px-6">
-          <div className="relative bg-gradient-to-r from-blue-600 via-purple-600 to-green-600 rounded-4xl p-16 text-center text-white shadow-3xl overflow-hidden">
+          <div className="relative bg-green-400 rounded-4xl p-16 text-center text-white shadow-3xl overflow-hidden">
             {/* Background Elements */}
             <div className="absolute inset-0 bg-black/10"></div>
             <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full"></div>

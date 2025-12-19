@@ -1,12 +1,27 @@
 const Pickup = require('../models/Pickup');
+const Bin = require('../models/bin')
+const mongoose = require('mongoose');
 
 // @desc    Create a new pickup request
 const createPickup = async (req, res) => {
-  const { binId, notes } = req.body;
+  const { binId,location,notes } = req.body;
+  if (!binId) {
+      return res.status(400).json({ message: 'binId is required' });
+  }
+  const bin = await Bin.findOne({binId:String(binId)});
+  if(!bin){
+    await Bin.create({
+      binId:binId,
+      location: location,
+      status: "full"
+    })
+  }
+
   const pickup = new Pickup({
-    bin: binId,
+    bin: bin._id,
     user: req.user._id,
     notes,
+    location:location
   });
   const createdPickup = await pickup.save();
   res.status(201).json(createdPickup);

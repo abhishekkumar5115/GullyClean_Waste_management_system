@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
-    <footer className="footer p-10 bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-t-3xl mt-16">
+    <footer className="footer p-10 bg-white text-white rounded-t-3xl mt-16">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <aside className="lg:col-span-1">
@@ -12,40 +12,46 @@ const Footer = () => {
               <Recycle size={40} className="text-green-400" />
               <span className="font-bold text-2xl">SmartWaste</span>
             </div>
-            <p className="mb-4 text-gray-300">Creating cleaner cities, together. Join our mission for a sustainable future.</p>
-            <p className="flex items-center text-sm text-gray-400">
+            <p className="mb-4 text-black">Creating cleaner cities, together. Join our mission for a sustainable future.</p>
+            <p className="flex items-center text-sm text-black">
               Made with <Heart size={14} className="mx-1 text-red-400" /> for a greener planet
             </p>
             <div className="flex gap-4 mt-4">
-              <a className="text-gray-400 hover:text-white transition-colors">
+              <a className="text-black hover:text-blue transition-colors">
                 <Twitter size={20} />
               </a>
-              <a className="text-gray-400 hover:text-white transition-colors">
+              <a className="text-black hover:text-blue transition-colors">
                 <Facebook size={20} />
               </a>
-              <a className="text-gray-400 hover:text-white transition-colors">
+              <a className="text-black hover:text-red transition-colors">
                 <Instagram size={20} />
               </a>
-              <a className="text-gray-400 hover:text-white transition-colors">
+              <a className="text-black hover:text-blue transition-colors">
                 <Linkedin size={20} />
               </a>
             </div>
           </aside>
           
           <nav>
-            <h6 className="footer-title text-white">Services</h6> 
-            <Link to="/bins" className="link link-hover text-gray-400 hover:text-green-400 transition-colors mb-2">Bin Monitoring</Link>
-            <Link to="/request-pickup" className="link link-hover text-gray-400 hover:text-green-400 transition-colors mb-2">Request a Pickup</Link>
-            <a className="link link-hover text-gray-400 hover:text-green-400 transition-colors mb-2">Route Optimization</a>
-            <a className="link link-hover text-gray-400 hover:text-green-400 transition-colors">Waste Analytics</a>
+            <h6 className="footer-title text-black">Services</h6> 
+            <Link to="/bins" className="link link-hover text-black-400 hover:text-green-400 transition-colors mb-2">Bin Monitoring</Link>
+            <br></br>
+            <Link to="/request-pickup" className="link link-hover text-black-400 hover:text-green-400 transition-colors mb-2">Request a Pickup</Link>
+            <br></br>
+            <a className="link link-hover text-black hover:text-green-400 transition-colors mb-2">Route Optimization</a>
+            <br></br>
+            <a className="link link-hover text-black hover:text-green-400 transition-colors">Waste Analytics</a>
           </nav> 
           
           <nav>
-            <h6 className="footer-title text-white">Company</h6> 
-            <a className="link link-hover text-gray-400 hover:text-green-400 transition-colors mb-2">About Us</a>
-            <a className="link link-hover text-gray-400 hover:text-green-400 transition-colors mb-2">Careers</a>
-            <a className="link link-hover text-gray-400 hover:text-green-400 transition-colors mb-2">Blog</a>
-            <a className="link link-hover text-gray-400 hover:text-green-400 transition-colors">Press</a>
+            <h6 className="footer-title text-black">Company</h6> 
+            <a className="link link-hover text-black hover:text-green-400 transition-colors mb-2">About Us</a>
+            <br></br>
+            <a className="link link-hover text-black hover:text-green-400 transition-colors mb-2">Careers</a>
+            <br></br>
+            <a className="link link-hover text-black hover:text-green-400 transition-colors mb-2">Blog</a>
+            <br></br>
+            <a className="link link-hover text-black hover:text-green-400 transition-colors">Press</a>
           </nav>
           
           <nav>

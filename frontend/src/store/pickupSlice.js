@@ -4,9 +4,13 @@ import api from '../api/api';
 export const createPickup = createAsyncThunk('pickups/create', async (pickupData, thunkAPI) => {
     try {
         const response = await api.post('/pickups', pickupData);
+        console.log(response.data);
         return response.data;
     } catch (error) {
-        return thunkAPI.rejectWithValue('Failed to create pickup request.');
+       console.error('Create pickup error:', error.response?.data);
+  return thunkAPI.rejectWithValue(
+    error.response?.data?.message || 'Failed to create pickup request.'
+  );
     }
 });
 

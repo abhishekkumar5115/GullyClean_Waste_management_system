@@ -156,21 +156,14 @@ const LoginForm = () => {
                 type={showPassword ? "text" : "password"} 
                 id="password"
                 placeholder="••••••••"
-                autoComplete="current-password"
-                className={`w-full pl-10 pr-12 py-3 border rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white ${
-                  errors.password 
-                    ? 'border-red-300 focus:ring-red-500' 
-                    : touchedFields.password && !errors.password 
-                    ? 'border-green-300 focus:ring-green-500' 
-                    : 'border-gray-200'
-                }`}
+                className={`w-full pl-10 pr-12 py-3 border-gray-400 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 focus:bg-white `}
                 disabled={isLoading}
                 aria-invalid={errors.password ? 'true' : 'false'}
                 aria-describedby={errors.password ? 'password-error' : undefined}
               />
               <button 
                 type="button"
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200 z-10"
+                className="absolute right-3 top-1 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200 z-10"
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={isLoading}
                 aria-label={showPassword ? 'Hide password' : 'Show password'}
@@ -178,16 +171,7 @@ const LoginForm = () => {
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
-            {errors.password && (
-              <p 
-                id="password-error"
-                className="text-sm text-red-600 flex items-center gap-1 animate-fadeIn"
-                role="alert"
-              >
-                <span className="text-red-500">•</span>
-                {errors.password.message}
-              </p>
-            )}
+            
           </div>
 
           {/* Submit Button */}

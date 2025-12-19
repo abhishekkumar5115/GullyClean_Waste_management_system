@@ -6,6 +6,7 @@ const pickupSchema = new mongoose.Schema({
     status: { type: String, enum: ['pending', 'assigned', 'completed'], default: 'pending' },
     assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     notes: { type: String },
+    location: { type: String, required: true },
     requestedDate: { type: Date, default: Date.now },
     scheduledFor: { type: Date },
     completedDate: { type: Date },

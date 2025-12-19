@@ -10,7 +10,7 @@ function Logoutbtn() {
 
     const logouthandler = ()=>{
         dispatch(logout);
-        navigate("/login");
+        navigate("/");
     }
   return (
     <Button 

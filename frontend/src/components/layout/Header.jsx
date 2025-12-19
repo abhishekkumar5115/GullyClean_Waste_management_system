@@ -30,7 +30,7 @@ const Header = () => {
 
   const onLogout = () => {
     dispatch(logout());
-    navigate('/login');
+    navigate('/');
   };
 
   const navLinks = [
@@ -51,14 +51,14 @@ const Header = () => {
   const isHomePage = location.pathname === '/';
 
   return (
-    <header className={`sticky top-0 z-50 transition-all duration-500 ${
+    <header className={` top-0 z-50 transition-all duration-500 ${
       scrolled || !isHomePage 
         ? 'bg-white/95 backdrop-blur-lg shadow-lg border-b border-gray-100' 
-        : 'bg-transparent'
+        : 'bg-solid'
     }`}>
       {/* Top Bar */}
-      <div className="bg-gradient-to-r from-green-600 to-blue-600 text-white py-2 px-4 text-sm text-center">
-        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2">
+      <div className="bg-green-600 text-white py-2 px-4 text-sm text-center">
+        <div className="max-w-2xl mx-auto flex items-center justify-center gap-2">
           <span className="bg-white/20 px-3 py-1 rounded-full text-xs font-medium">✨</span>
           <span>Join 5,000+ users making our cities cleaner</span>
           <span className="hidden sm:inline">•</span>
@@ -76,18 +76,16 @@ const Header = () => {
             onClick={handleLinkClick}
           >
             <div className="relative">
-              <div className="bg-gradient-to-r from-green-500 to-blue-600 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300 shadow-lg">
+              <div className="bg-green-500 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300 shadow-lg">
                 <Recycle className="text-white" size={28} />
               </div>
-              <div className="absolute -inset-1 bg-gradient-to-r from-green-500 to-blue-600 rounded-xl blur-sm opacity-50 group-hover:opacity-75 transition-opacity -z-10"></div>
+              <div className="absolute -inset-1 bg-gradient-green-500 rounded-xl blur-sm opacity-50 group-hover:opacity-75 transition-opacity -z-10"></div>
             </div>
             <div className="flex flex-col">
-              <span className={`text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent ${
-                scrolled || !isHomePage ? 'block' : 'text-white-90'
-              }`}>
+              <span className={`text-2xl font-bold bg-white-600  bg-clip-text `}>
                 Gully clean
               </span>
-              <span className="text-xs text-gray-500 font-medium">Clean Cities Initiative</span>
+              <span className="text-xs text-black-500 font-medium">Clean Cities Initiative</span>
             </div>
           </Link>
 
@@ -121,7 +119,7 @@ const Header = () => {
                 <div className="hidden lg:block relative">
                   <button
                     onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                    className="flex items-center gap-3 bg-gradient-to-r from-green-500 to-blue-600 text-white px-4 py-2 rounded-xl hover:shadow-lg transition-all duration-300"
+                    className="flex items-center gap-3 bg-red-400 text-white px-4 py-2 rounded-xl hover:shadow-lg transition-all duration-300"
                   >
                     <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                       <User size={16} />

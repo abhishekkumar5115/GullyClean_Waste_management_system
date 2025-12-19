@@ -10,7 +10,7 @@ const Profile = () => {
     }
 
     return (
-        <div className="card bg-base-100 shadow-xl rounded-2xl overflow-hidden">
+        <div className="card bg-yellow-500 shadow-xl rounded-2xl overflow-hidden">
             <div className="card-body items-center text-center p-6">
                 <div className="avatar mb-4">
                     <div className="w-24 rounded-full bg-gradient-to-r from-primary to-secondary p-1">
@@ -39,7 +39,12 @@ const Profile = () => {
                     </p>
                     <p className="flex items-center gap-3 p-3 bg-base-200 rounded-lg">
                       <Calendar className="text-primary"/> 
-                      <span>Member since {new Date(user.createdAt).toLocaleDateString()}</span>
+                      <span>
+                      Member since{' '}
+                      {user.createdAt
+                      ? new Date(user.createdAt).toLocaleDateString()
+                      : 'N/A'}
+                      </span>
                     </p>
                 </div>
             </div>
