@@ -10,7 +10,7 @@ import BinDetailPage from './pages/BinDetailPage';
 import PickupRequestPage from './pages/PickupRequestPage';
 import PickupsPage from './pages/PickupsPage';
 import NotFoundPage from './pages/NotFoundPage';
-import ProtectedRoute from './components/common/ProtectedRoute';
+import ProtectedRoute from './components/usercomponents/ProtectedRoute';
 import UnauthorizedPage from './pages/UnauthorizedPage';
 
 function App() {
