@@ -21,6 +21,13 @@ exports.getAdminDashboardStats = async (req, res) => {
         const pendingPickups = await Pickup.countDocuments({ status: { $ne: 'completed' } });
         const completedPickups = await Pickup.countDocuments({ status: 'completed' });
 
+        // Recent Activity (Last 5 Pickups)
+        const recentPickups = await Pickup.find()
+            .sort({ updatedAt: -1 })
+            .limit(5)
+            .populate('assignedTo', 'name email')
+            .populate('bin', 'binId location');
+
         res.status(200).json({
             users: {
                 total: usersCount,
@@ -39,6 +46,7 @@ exports.getAdminDashboardStats = async (req, res) => {
                 pending: pendingPickups,
                 completed: completedPickups
             },
+            recentActivity: recentPickups,
             message: "Dashboard stats fetched successfully."
         });
     } catch (error) {
