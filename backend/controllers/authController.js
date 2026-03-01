@@ -6,57 +6,74 @@ const {generateToken} = require('../services/authentication');
   
 // @desc    Register a new user
 const registerUser = async (req, res) => {
-  const { name, email, phone, password, role } = req.body;
-  const userExists = await User.findOne({ email, phone });
-  if (userExists) {
-    return res.status(400).json({ message: 'User already exists' });
-  }
-  const user = await User.create({ name, email, phone, password, role });
-  if (user) {
-    generateToken(res,user._id);
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      role: user.role,
-    });
-  } else {
-    res.status(400).json({ message: 'Invalid user data' });
+  try {
+    const { name, email, phone, password, role } = req.body;
+    const userExists = await User.findOne({ email, phone });
+    if (userExists) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+    const user = await User.create({ name, email, phone, password, role });
+    if (user) {
+      const token = generateToken(res, user);
+      res.status(201).json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        token: token,
+      });
+    } else {
+      res.status(400).json({ message: 'Invalid user data' });
+    }
+  } catch (error) {
+    console.error("Register Error:", error);
+    res.status(500).json({ message: 'Server error during registration.' });
   }
 };
 
 // @desc    Auth user & get token
 const loginUser = async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ email });
-  
-  if (!user) {
-    return res.status(401).json({ message: 'User not found' });
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    const isMatch = await user.matchPassword(password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    const token = generateToken(res, user);
+    
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role,
+      token: token,
+      createdAt : user.createdAt
+    });
+  } catch (error) {
+    console.error("Login Error:", error);
+    res.status(500).json({ message: 'Server error during login.' });
   }
-
-  const isMatch = await user.matchPassword(password);
-
-  if (!isMatch) {
-    return res.status(401).json({ message: 'Invalid password' });
-  }
-
-  const token = generateToken(res, user._id);
-  res.json({
-    _id: user._id,
-    name: user.name,
-    email: user.email,
-    phone: user.phone,
-    role: user.role,
-    createdAt : user.createdAt
-  });
 };
 
 
 // @desc    Logout user
 const logoutUser = (req, res) => {
-  res.cookie('jwt', '', { httpOnly: true, expires: new Date(0) });
-  res.status(200).json({ message: 'Logged out successfully' });
+  try {
+    res.cookie('jwt', '', { httpOnly: true, expires: new Date(0) });
+    res.status(200).json({ message: 'Logged out successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error during logout.' });
+  }
 };
 
 

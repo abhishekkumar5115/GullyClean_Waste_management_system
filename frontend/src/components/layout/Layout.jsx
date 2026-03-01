@@ -1,18 +1,17 @@
 import React from 'react';
 import Header from './Header';
-import Footer from './Footer';
+import Footer from './footer';
 import { Outlet } from 'react-router-dom';
-import NotificationContainer from '../notification/NotificationContainer';
 
 const Layout = () => {
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+    <div className="flex flex-col min-h-screen bg-gray-50/50 font-sans selection:bg-emerald-500/30">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
+      {/* Added pt-20 to push content below the new fixed Header */}
+      <main className="flex-grow w-full pt-20">
         <Outlet />
       </main>
       <Footer />
-      <NotificationContainer />
     </div>
   );
 };

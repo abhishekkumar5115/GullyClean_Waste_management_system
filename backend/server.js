@@ -17,7 +17,7 @@ const app = express();
 
 // Middleware setup
 app.use(cors({
-  origin: 'http://localhost:5173', // Allow frontend to connect
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176', 'http://localhost:5177'], // Allow frontend and admin portal to connect
   credentials: true,
 }));
 
@@ -31,6 +31,12 @@ app.use(cookieParser());
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/bins', require('./routes/binRoutes'));
 app.use('/api/pickups', require('./routes/pickupRoutes'));
+app.use('/api/admin', require('./routes/adminRoutes'));
+app.use('/api/worker', require('./routes/workerRoutes'));
+app.use('/api/upload', require('./routes/uploadRoutes'));
+
+// Serve uploaded images statically
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // --- Deployment Setup ---
 // Serve static files from the React app in production
@@ -52,3 +58,5 @@ if (process.env.NODE_ENV === 'production') {
 // Define the port and start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+
+// Triggering restart for Env vars

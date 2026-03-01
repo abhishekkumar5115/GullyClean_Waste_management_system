@@ -2,8 +2,8 @@ const Bin = require('../models/Bin');
 
 // @desc    Get all bins
 const getBins = async (req, res) => {
-  const bins = await Bin.find({});
-  res.json(bins);
+    const bins = await Bin.find({});
+    res.json(bins);
 };
 
 // @desc    Get a single bin by ID
@@ -18,10 +18,10 @@ const getBinById = async (req, res) => {
 
 // @desc    Create a new bin
 const createBin = async (req, res) => {
-  const { location } = req.body;
-  const bin = new Bin({ location });
-  const createdBin = await bin.save();
-  res.status(201).json(createdBin);
+    const { location } = req.body;
+    const bin = new Bin({ location });
+    const createdBin = await bin.save();
+    res.status(201).json(createdBin);
 };
 
 // @desc    Update bin status

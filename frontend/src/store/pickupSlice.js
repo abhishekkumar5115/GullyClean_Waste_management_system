@@ -33,9 +33,9 @@ export const assignPickup = createAsyncThunk('pickups/assign', async ({pickupId,
 });
 
 
-export const completePickup = createAsyncThunk('pickups/complete', async (pickupId, thunkAPI) => {
+export const completePickup = createAsyncThunk('pickups/complete', async ({ pickupId, workerPhoto }, thunkAPI) => {
     try {
-        const response = await api.put(`/pickups/${pickupId}/complete`);
+        const response = await api.put(`/pickups/${pickupId}/complete`, { workerPhoto });
         return response.data;
     } catch (error) {
         return thunkAPI.rejectWithValue('Failed to complete pickup.');

@@ -1,28 +1,48 @@
 const Pickup = require('../models/Pickup');
-const Bin = require('../models/bin')
+const Bin = require('../models/Bin');
+const User = require('../models/user');
 const mongoose = require('mongoose');
 
 // @desc    Create a new pickup request
 const createPickup = async (req, res) => {
-  const { binId,location,notes } = req.body;
+  const { binId, location, notes, citizenPhoto } = req.body;
   if (!binId) {
       return res.status(400).json({ message: 'binId is required' });
   }
-  const bin = await Bin.findOne({binId:String(binId)});
-  if(!bin){
-    await Bin.create({
+  let bin = await Bin.findOne({binId:String(binId)});
+  if(!bin) {
+    bin = await Bin.create({
       binId:binId,
       location: location,
       status: "full"
-    })
+    });
+  }
+
+  // Randomly assign to a worker automatically
+  const workers = await User.find({ role: 'worker' });
+  let assignedTo = null;
+  let status = 'pending';
+  
+  if (workers.length > 0) {
+    const randomWorker = workers[Math.floor(Math.random() * workers.length)];
+    assignedTo = randomWorker._id;
+    status = 'assigned';
   }
 
   const pickup = new Pickup({
     bin: bin._id,
     user: req.user._id,
     notes,
-    location:location
+    location: location,
+    citizenPhoto: citizenPhoto || null,
+    status: status,
+    assignedTo: assignedTo
   });
+  
+  // Change bin status to requested
+  bin.status = 'requested';
+  await bin.save();
+
   const createdPickup = await pickup.save();
   res.status(201).json(createdPickup);
 };

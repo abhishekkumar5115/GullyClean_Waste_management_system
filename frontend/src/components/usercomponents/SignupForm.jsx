@@ -5,8 +5,8 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { signup, reset } from '../../store/authSlice';
-import { addNotification } from '../../store/notificationsSlice';
-import { Eye, EyeOff, UserPlus, CheckCircle, AlertCircle } from 'lucide-react';
+import { toast } from 'react-toastify';
+import { Eye, EyeOff, UserPlus, CheckCircle, Leaf, Mail, Phone, Lock, User, Users } from 'lucide-react';
 
 /* ---------------- Password Strength ---------------- */
 const checkPasswordStrength = (password) => {
@@ -22,21 +22,21 @@ const checkPasswordStrength = (password) => {
 
   const score = Object.values(checks).filter(Boolean).length;
 
-  if (score <= 2) return { score, text: 'Weak', color: 'bg-red-500' };
-  if (score <= 3) return { score, text: 'Fair', color: 'bg-yellow-500' };
-  if (score <= 4) return { score, text: 'Good', color: 'bg-blue-500' };
-  return { score, text: 'Strong', color: 'bg-green-500' };
+  if (score <= 2) return { score, text: 'Weak', color: 'bg-red-400', textColor: 'text-red-500' };
+  if (score <= 3) return { score, text: 'Fair', color: 'bg-yellow-400', textColor: 'text-yellow-600' };
+  if (score <= 4) return { score, text: 'Good', color: 'bg-blue-400', textColor: 'text-blue-500' };
+  return { score, text: 'Strong', color: 'bg-emerald-500', textColor: 'text-emerald-600' };
 };
 
 /* ---------------- Validation Schema ---------------- */
 const schema = yup.object({
-  name: yup.string().required().min(2).max(100).trim(),
-  email: yup.string().required().email().lowercase(),
+  name: yup.string().required('Full name is required').min(2, 'Name must be at least 2 characters').max(100).trim(),
+  email: yup.string().required('Email is required').email('Must be a valid email').lowercase(),
   phone: yup.string().optional().nullable(),
-  password: yup.string().required().min(6),
+  password: yup.string().required('Password is required').min(6, 'Must be at least 6 characters'),
   confirmPassword: yup
     .string()
-    .required()
+    .required('Please confirm your password')
     .oneOf([yup.ref('password')], 'Passwords must match'),
   role: yup.string().required().oneOf(['citizen', 'worker', 'admin']),
 });
@@ -55,7 +55,7 @@ const SignupForm = () => {
     register,
     handleSubmit,
     watch,
-    formState: { errors, isSubmitting, isValid, touchedFields },
+    formState: { errors, isSubmitting, isValid },
   } = useForm({
     resolver: yupResolver(schema),
     mode: 'onChange',
@@ -72,12 +72,13 @@ const SignupForm = () => {
 
   useEffect(() => {
     if (error) {
-      dispatch(addNotification({ title: 'Signup Failed', message: error, type: 'error' }));
+      toast.error(`Signup Failed: ${error}`);
       dispatch(reset());
     }
 
     if (user) {
       setShowSuccess(true);
+      toast.success('Account created successfully! Redirecting...');
       setTimeout(() => navigate('/dashboard'), 2000);
     }
   }, [user, error, navigate, dispatch]);
@@ -90,103 +91,243 @@ const SignupForm = () => {
 
   if (showSuccess) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 px-4">
-        <div className="max-w-lg w-full bg-white p-12 rounded-3xl shadow-2xl text-center">
-          <CheckCircle className="mx-auto text-green-500 h-16 w-16 mb-6" />
-          <h2 className="text-4xl font-bold mb-4">Account Created!</h2>
-          <div className="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin mx-auto" />
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="max-w-md w-full bg-white p-10 rounded-3xl shadow-2xl text-center border border-emerald-100">
+          <div className="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <CheckCircle className="text-emerald-500 w-10 h-10" />
+          </div>
+          <h2 className="text-3xl font-black text-gray-900 mb-4 tracking-tight">Welcome Aboard!</h2>
+          <p className="text-gray-500 mb-8">Preparing your eco-dashboard...</p>
+          <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto" />
         </div>
       </div>
     );
   }
 
   return (
-  <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* ---------------- Image Side Panel (Hidden on Mobile) ---------------- */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-emerald-900">
+        <img 
+          src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&q=80&w=2000" 
+          alt="Sustainable City" 
+          className="absolute inset-0 w-full h-full object-cover object-center opacity-40"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/80 to-teal-900/90" />
+        
+        <div className="relative z-10 flex flex-col justify-between h-full p-16 text-white max-w-2xl">
+          <Link to="/" className="flex items-center gap-3 w-fit">
+            <div className="w-12 h-12 bg-white/10 rounded-xl backdrop-blur-md flex items-center justify-center border border-white/20 shadow-xl">
+              <Leaf className="w-7 h-7 text-emerald-300" />
+            </div>
+            <span className="text-2xl font-black tracking-tight drop-shadow-md">Gully Clean</span>
+          </Link>
 
-
-    {/* ================= CENTERED FORM SECTION ================= */}
-    <section className="w-full flex justify-center px-6 pb-16">
-
-      {/* 👇 THIS CONTROLS FORM WIDTH */}
-      <div className="w-100 max-w-5xl">
-
-        {error && (
-          <div className="mb-6 p-4 text-lg text-red-700 bg-red-100 border border-red-400 rounded-lg shadow-md">
-            <strong>Signup Failed:</strong> {error}
+          <div>
+            <h1 className="text-5xl font-black mb-6 leading-tight tracking-tight text-white drop-shadow-sm">
+              Start your journey to a cleaner city.
+            </h1>
+            <p className="text-emerald-50/80 text-lg leading-relaxed max-w-lg mb-12 font-medium">
+              Join thousands of citizens actively reporting bin statuses and keeping 
+              neighborhoods beautiful.
+            </p>
+            
+            <div className="grid grid-cols-2 gap-6">
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 hover:bg-white/20 transition-colors">
+                <CheckCircle className="w-8 h-8 text-emerald-300 mb-4" />
+                <h3 className="font-bold mb-1">Impact Driven</h3>
+                <p className="text-emerald-100/70 text-sm">Real ecological positive impact.</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 hover:bg-white/20 transition-colors">
+                <Users className="w-8 h-8 text-blue-300 mb-4" />
+                <h3 className="font-bold mb-1">Community First</h3>
+                <p className="text-emerald-100/70 text-sm">Join 5,000+ eco-citizens.</p>
+              </div>
+            </div>
           </div>
-        )}
+          
+          <p className="text-sm font-medium text-emerald-200/60">
+            © {new Date().getFullYear()} Gully Clean Project. All rights reserved.
+          </p>
+        </div>
+      </div>
 
-        <div className="bg-white rounded-3xl shadow-2xl p-16">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-12">
+      {/* ---------------- Form Side Panel ---------------- */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 lg:p-16 relative">
+        <div className="w-full max-w-md">
+          {/* Mobile Logo Only */}
+          <Link to="/" className="lg:hidden flex items-center gap-3 w-fit mb-12">
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
+              <Leaf className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-2xl font-black text-gray-900 tracking-tight">Gully Clean</span>
+          </Link>
+
+          <div className="mb-10">
+            <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mb-3 tracking-tight">Create Account</h2>
+            <p className="text-gray-500 font-medium tracking-wide">Enter your details to get started.</p>
+          </div>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            {/* Hidden Role */}
+            <input type="hidden" {...register('role')} value="citizen" />
 
             {/* Name */}
             <div>
-              <label className="block text-xl font-semibold mb-2">Full Name</label>
-              <input
-                {...register('name')}
-                className="w-full px-6 py-5 text-lg border-2 rounded-2xl"
-              />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <User className={`w-5 h-5 ${errors.name ? 'text-red-400' : 'text-gray-400'}`} />
+                </div>
+                <input
+                  {...register('name')}
+                  type="text"
+                  placeholder="Full Name"
+                  className={`w-full pl-11 pr-4 py-3.5 bg-gray-50 border rounded-xl text-gray-900 text-sm font-medium placeholder-gray-400 transition-all focus:ring-2 focus:ring-emerald-500 focus:border-transparent focus:bg-white ${
+                    errors.name ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                />
+              </div>
+              {errors.name && <p className="mt-1.5 text-xs font-semibold text-red-500">{errors.name.message}</p>}
             </div>
 
-            {/* Email + Phone */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <input
-                {...register('email')}
-                placeholder="Email"
-                className="px-6 py-5 text-lg border-2 rounded-2xl"
-              />
-              <input
-                {...register('phone')}
-                placeholder="Phone (optional)"
-                className="px-6 py-5 text-lg border-2 rounded-2xl"
-              />
+            {/* Email & Phone Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Mail className={`w-5 h-5 ${errors.email ? 'text-red-400' : 'text-gray-400'}`} />
+                  </div>
+                  <input
+                    {...register('email')}
+                    type="email"
+                    placeholder="Email Address"
+                    className={`w-full pl-11 pr-4 py-3.5 bg-gray-50 border rounded-xl text-gray-900 text-sm font-medium placeholder-gray-400 transition-all focus:ring-2 focus:ring-emerald-500 focus:border-transparent focus:bg-white ${
+                      errors.email ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  />
+                </div>
+                {errors.email && <p className="mt-1.5 text-xs font-semibold text-red-500">{errors.email.message}</p>}
+              </div>
+
+              <div>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Phone className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <input
+                    {...register('phone')}
+                    type="tel"
+                    placeholder="Phone (Optional)"
+                    className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 text-sm font-medium placeholder-gray-400 transition-all hover:border-gray-300 focus:ring-2 focus:ring-emerald-500 focus:border-transparent focus:bg-white"
+                  />
+                </div>
+              </div>
             </div>
 
-            {/* Role */}
-            <select
-              {...register('role')}
-              className="w-full px-6 py-5 text-lg border-2 rounded-2xl"
-            >
-              <option value="citizen">Citizen</option>
-              <option value="worker">Worker</option>
-            </select>
+            {/* Password */}
+            <div>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Lock className={`w-5 h-5 ${errors.password ? 'text-red-400' : 'text-gray-400'}`} />
+                </div>
+                <input
+                  {...register('password')}
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  className={`w-full pl-11 pr-12 py-3.5 bg-gray-50 border rounded-xl text-gray-900 text-sm font-medium placeholder-gray-400 transition-all focus:ring-2 focus:ring-emerald-500 focus:border-transparent focus:bg-white ${
+                    errors.password ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-emerald-600 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+              
+              {/* Animated Password Strength Indicator */}
+              {watchPassword && !errors.password && (
+                <div className="mt-2.5">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className={`text-xs font-bold ${passwordStrength.textColor}`}>
+                      {passwordStrength.text} Password
+                    </span>
+                  </div>
+                  <div className="flex gap-1 h-1">
+                    {[1, 2, 3, 4].map((num) => (
+                      <div 
+                        key={num} 
+                        className={`flex-1 rounded-full transition-all duration-300 ${
+                          num <= passwordStrength.score ? passwordStrength.color : 'bg-gray-200'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+              {errors.password && <p className="mt-1.5 text-xs font-semibold text-red-500">{errors.password.message}</p>}
+            </div>
 
-            {/* Passwords */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <input
-                {...register('password')}
-                type="password"
-                placeholder="Password"
-                className="px-6 py-5 text-lg border-2 rounded-2xl"
-              />
-              <input
-                {...register('confirmPassword')}
-                type="password"
-                placeholder="Confirm Password"
-                className="px-6 py-5 text-lg border-2 rounded-2xl"
-              />
+            {/* Confirm Password */}
+            <div>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Lock className={`w-5 h-5 ${errors.confirmPassword ? 'text-red-400' : 'text-gray-400'}`} />
+                </div>
+                <input
+                  {...register('confirmPassword')}
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirm Password"
+                  className={`w-full pl-11 pr-12 py-3.5 bg-gray-50 border rounded-xl text-gray-900 text-sm font-medium placeholder-gray-400 transition-all focus:ring-2 focus:ring-emerald-500 focus:border-transparent focus:bg-white ${
+                    errors.confirmPassword ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-emerald-600 transition-colors"
+                >
+                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+              {errors.confirmPassword && <p className="mt-1.5 text-xs font-semibold text-red-500">{errors.confirmPassword.message}</p>}
             </div>
 
             <button
               type="submit"
-              className="w-full py-6 text-xl font-bold text-black rounded-2xl bg-green"
+              disabled={!isValid || isLoading}
+              className={`w-full py-4 mt-6 flex items-center justify-center gap-2 rounded-xl text-sm font-bold transition-all duration-300 ${
+                !isValid || isLoading
+                  ? 'bg-gray-100/80 text-gray-400 cursor-not-allowed border border-gray-200'
+                  : 'text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:shadow-lg hover:shadow-emerald-500/30 hover:-translate-y-0.5'
+              }`}
             >
-              Create Account
+              {isLoading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Creating Account...
+                </>
+              ) : (
+                <>
+                  <UserPlus className="w-5 h-5" />
+                  Create Account
+                </>
+              )}
             </button>
           </form>
+
+          <p className="mt-10 text-center text-sm font-medium text-gray-600">
+            Already have an account?{' '}
+            <Link to="/login" className="text-emerald-600 hover:text-emerald-700 font-bold hover:underline">
+              Sign in instead
+            </Link>
+          </p>
         </div>
-
-        <p className="text-center mt-12 text-xl">
-          Already have an account?{' '}
-          <Link to="/login" className="text-blue-600 font-semibold hover:underline">
-            Sign in here
-          </Link>
-        </p>
-
       </div>
-    </section>
-  </div>
-);
+    </div>
+  );
 };
 
 export default SignupForm;

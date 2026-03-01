@@ -10,6 +10,8 @@ const pickupSchema = new mongoose.Schema({
     requestedDate: { type: Date, default: Date.now },
     scheduledFor: { type: Date },
     completedDate: { type: Date },
+    citizenPhoto: { type: String },
+    workerPhoto: { type: String },
 }, { timestamps: true });
 
 const Pickup = mongoose.model('Pickup', pickupSchema);

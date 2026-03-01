@@ -9,8 +9,6 @@ import BinsPage from './pages/BinsPage';
 import BinDetailPage from './pages/BinDetailPage';
 import PickupRequestPage from './pages/PickupRequestPage';
 import PickupsPage from './pages/PickupsPage';
-import WorkerDashboardPage from './pages/WorkerDashboardPage';
-import AdminDashboardPage from './pages/AdminDashboardPage';
 import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/common/ProtectedRoute';
 import UnauthorizedPage from './pages/UnauthorizedPage';
@@ -31,17 +29,6 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="profile" element={<ProfilePage />} />
           <Route path="request-pickup" element={<PickupRequestPage />} />
-        </Route>
-
-        {/* Admin/Dispatcher Routes */}
-        <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-            <Route path="admin" element={<AdminDashboardPage />} />
-            <Route path="pickups" element={<PickupsPage />} />
-        </Route>
-        
-        {/* Worker Routes */}
-        <Route element={<ProtectedRoute allowedRoles={['worker']} />}>
-          <Route path="worker-dashboard" element={<WorkerDashboardPage />} />
         </Route>
 
         {/* Not Found */}

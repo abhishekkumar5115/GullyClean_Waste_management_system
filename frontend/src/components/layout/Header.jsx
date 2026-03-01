@@ -15,12 +15,22 @@ const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const isScrolled = window.scrollY > 50;
+      const isScrolled = window.scrollY > 20;
       setScrolled(isScrolled);
     };
 
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setMobileMenuOpen(false);
+      }
+    };
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   useEffect(() => {
@@ -34,14 +44,11 @@ const Header = () => {
   };
 
   const navLinks = [
-    { to: '/bins', text: 'Find Bins', icon: <Trash2 size={18} /> },
-    { to: '/request-pickup', text: 'Request Pickup', icon: <Truck size={18} /> },
-    { to: '/admin', text: 'Admin Dashboard', icon: <LayoutDashboard size={18} />, roles: ['admin'] },
-    { to: '/pickups', text: 'Manage Pickups', icon: <Truck size={18} />, roles: ['admin'] },
-    { to: '/worker-dashboard', text: 'My Assignments', icon: <MapPin size={18} />, roles: ['worker'] },
+    { to: '/bins', text: 'Smart Bins', icon: <Trash2 size={18} /> },
+    { to: '/request-pickup', text: 'Request Pickup', icon: <Truck size={18} /> }
   ];
 
-  const filteredNavLinks = navLinks.filter(link => !link.roles || (user && link.roles.includes(user.role)));
+  const filteredNavLinks = navLinks;
 
   const handleLinkClick = () => {
     setMobileMenuOpen(false);
@@ -51,256 +58,208 @@ const Header = () => {
   const isHomePage = location.pathname === '/';
 
   return (
-    <header className={` top-0 z-50 transition-all duration-500 ${
+    <header className={`fixed w-full top-0 z-50 transition-all duration-300 ${
       scrolled || !isHomePage 
-        ? 'bg-white/95 backdrop-blur-lg shadow-lg border-b border-gray-100' 
-        : 'bg-solid'
+        ? 'py-2 bg-white/80 backdrop-blur-xl shadow-sm border-b border-gray-200/50' 
+        : 'py-4 bg-transparent'
     }`}>
-      {/* Top Bar */}
-      <div className="bg-green-600 text-white py-2 px-4 text-sm text-center">
-        <div className="max-w-2xl mx-auto flex items-center justify-center gap-2">
-          <span className="bg-white/20 px-3 py-1 rounded-full text-xs font-medium">✨</span>
-          <span>Join 5,000+ users making our cities cleaner</span>
-          <span className="hidden sm:inline">•</span>
-          <span className="hidden sm:inline">Real-time bin monitoring</span>
-        </div>
-      </div>
-
-      {/* Main Navbar */}
-      <nav className="max-w-7xl mx-auto px-4 py-3">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
-          {/* Logo */}
+          
+          {/* Brand Logo */}
           <Link 
             to="/" 
             className="flex items-center gap-3 group"
             onClick={handleLinkClick}
           >
-            <div className="relative">
-              <div className="bg-green-500 p-3 rounded-xl group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                <Recycle className="text-white" size={28} />
-              </div>
-              <div className="absolute -inset-1 bg-gradient-green-500 rounded-xl blur-sm opacity-50 group-hover:opacity-75 transition-opacity -z-10"></div>
+            <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 shadow-lg group-hover:shadow-emerald-500/30 transition-shadow">
+              <Recycle className="text-white w-6 h-6 transform group-hover:-rotate-90 transition-transform duration-500" />
             </div>
             <div className="flex flex-col">
-              <span className={`text-2xl font-bold bg-white-600  bg-clip-text `}>
-                Gully clean
+              <span className={`text-xl font-extrabold tracking-tight ${scrolled || !isHomePage ? 'text-gray-900' : 'text-white'}`}>
+                Gully Clean
               </span>
-              <span className="text-xs text-black-500 font-medium">Clean Cities Initiative</span>
+              <span className={`text-[10px] font-medium uppercase tracking-wider ${scrolled || !isHomePage ? 'text-emerald-600' : 'text-emerald-200'}`}>
+                Smart City Waste
+              </span>
             </div>
           </Link>
 
-          {/* Desktop Navigation - SIMPLIFIED AND WORKING */}
-          <div className="hidden lg:flex items-center space-x-4">
-            {filteredNavLinks.map(link => (
-              <NavLink 
-                key={link.to}
-                to={link.to} 
-                className={({ isActive }) => 
-                  `group relative flex items-center gap-2 font-medium py-3 px-5 rounded-xl transition-all duration-300 ${
-                    isActive 
-                      ? 'bg-gradient-to-r from-green-500 to-blue-600 text-white shadow-lg' 
-                      : scrolled || !isHomePage 
-                        ? 'text-gray-700 hover:text-green-600 hover:bg-gray-50' 
-                        : 'text-white/90 hover:text-white hover:bg-white/10'
-                  }`
-                }
-              >
-                {link.icon}
-                <span>{link.text}</span>
-              </NavLink>
-            ))}
-          </div>
-
-          {/* User Actions */}
-          <div className="flex items-center gap-4">
-            {user ? (
-              <>
-                {/* Desktop User Menu */}
-                <div className="hidden lg:block relative">
-                  <button
-                    onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                    className="flex items-center gap-3 bg-red-400 text-white px-4 py-2 rounded-xl hover:shadow-lg transition-all duration-300"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                      <User size={16} />
-                    </div>
-                    <span className="font-medium">{user.name?.split(' ')[0]}</span>
-                    <ChevronDown 
-                      size={16} 
-                      className={`transition-transform duration-300 ${userDropdownOpen ? 'rotate-180' : ''}`}
-                    />
-                  </button>
-
-                  {/* User Dropdown */}
-                  {userDropdownOpen && (
-                    <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 py-2 z-50">
-                      <div className="p-4 border-b border-gray-100">
-                        <div className="flex items-center gap-3">
-                          <img 
-                            alt="User avatar" 
-                            src={`https://ui-avatars.com/api/?name=${user.name?.replace(/\s/g, '+')}&background=4f46e5&color=fff&bold=true&size=64`} 
-                            className="w-12 h-12 rounded-full border-2 border-green-200"
-                          />
-                          <div>
-                            <p className="font-semibold text-gray-800">{user.name}</p>
-                            <p className="text-sm text-gray-500 capitalize">{user.role}</p>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="p-2">
-                        <Link 
-                          to="/profile" 
-                          className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
-                          onClick={handleLinkClick}
-                        >
-                          <User size={18} />
-                          My Profile
-                        </Link>
-                        <button 
-                          onClick={onLogout}
-                          className="flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors w-full text-left"
-                        >
-                          <LogOut size={18} />
-                          Logout
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </>
-            ) : (
-              <div className='hidden lg:flex gap-3'>
-                <Link 
-                  to="/login" 
-                  className={`flex items-center gap-2 px-6 py-2 rounded-xl font-medium transition-all duration-300 ${
-                    scrolled || !isHomePage 
-                      ? 'text-gray-700 hover:text-green-600 border border-gray-200 hover:border-green-200' 
-                      : 'text-white/90 hover:text-white border border-white/30 hover:border-white'
-                  }`}
-                >
-                  <LogIn size={16} /> 
-                  Login
-                </Link>
-                <Link 
-                  to="/signup" 
-                  className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-blue-600 text-white px-6 py-2 rounded-xl font-medium hover:shadow-lg transition-all duration-300"
-                >
-                  <UserPlus size={16} /> 
-                  Sign Up
-                </Link>
-              </div>
-            )}
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className={`lg:hidden p-3 rounded-xl transition-all duration-300 ${
-                scrolled || !isHomePage 
-                  ? 'bg-gray-100 hover:bg-gray-200 text-gray-700' 
-                  : 'bg-white/20 hover:bg-white/30 text-white'
-              }`}
-            >
-              {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile Menu */}
-        <div className={`lg:hidden transition-all duration-500 overflow-hidden ${
-          mobileMenuOpen ? 'max-h-96 opacity-100 mt-4' : 'max-h-0 opacity-0'
-        }`}>
-          <div className="bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-100 p-4">
-            {/* User Info Mobile */}
-            {user && (
-              <div className="p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-xl mb-4">
-                <div className="flex items-center gap-3">
-                  <img 
-                    alt="User avatar" 
-                    src={`https://ui-avatars.com/api/?name=${user.name?.replace(/\s/g, '+')}&background=4f46e5&color=fff&bold=true`} 
-                    className="w-10 h-10 rounded-full border-2 border-green-200"
-                  />
-                  <div>
-                    <p className="font-semibold text-gray-800">{user.name}</p>
-                    <p className="text-sm text-gray-500 capitalize">{user.role}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Mobile Navigation Links */}
-            <div className="space-y-2">
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center gap-8">
+            <div className="flex items-center gap-2">
               {filteredNavLinks.map(link => (
-                <NavLink
+                <NavLink 
                   key={link.to}
-                  to={link.to}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ${
-                      isActive
-                        ? 'bg-gradient-to-r from-green-500 to-blue-500 text-white shadow-lg'
-                        : 'text-gray-700 hover:bg-gray-50 hover:text-green-600'
+                  to={link.to} 
+                  className={({ isActive }) => 
+                    `relative px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 flex items-center gap-2 group ${
+                      isActive 
+                        ? (scrolled || !isHomePage ? 'bg-emerald-50 text-emerald-700' : 'bg-white/20 text-white')
+                        : (scrolled || !isHomePage ? 'text-gray-600 hover:text-emerald-600 hover:bg-gray-50' : 'text-white/80 hover:text-white hover:bg-white/10')
                     }`
                   }
-                  onClick={handleLinkClick}
                 >
-                  {link.icon}
+                  <span className="opacity-70 group-hover:opacity-100 transition-opacity">{link.icon}</span>
                   {link.text}
                 </NavLink>
               ))}
             </div>
 
-            {/* Mobile Auth Buttons */}
-            {!user && (
-              <div className="flex gap-3 mt-4 pt-4 border-t border-gray-100">
-                <Link 
-                  to="/login" 
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-gray-700 border border-gray-200 rounded-xl hover:border-green-200 transition-colors"
-                  onClick={handleLinkClick}
-                >
-                  <LogIn size={16} />
-                  Login
-                </Link>
-                <Link 
-                  to="/signup" 
-                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-500 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all"
-                  onClick={handleLinkClick}
-                >
-                  <UserPlus size={16} />
-                  Sign Up
-                </Link>
-              </div>
-            )}
+            {/* User Actions */}
+            <div className="flex items-center gap-4 pl-8 border-l border-gray-200/30">
+              {user ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all duration-300 ${
+                      scrolled || !isHomePage 
+                        ? 'border-gray-200 hover:border-emerald-300 hover:bg-emerald-50' 
+                        : 'border-white/30 hover:bg-white/10 text-white'
+                    }`}
+                  >
+                    <img 
+                      alt="Avatar" 
+                      src={`https://ui-avatars.com/api/?name=${user.name?.replace(/\s/g, '+')}&background=random&color=fff&bold=true`} 
+                      className="w-7 h-7 rounded-full bg-gray-200"
+                    />
+                    <span className={`text-sm font-semibold ${scrolled || !isHomePage ? 'text-gray-700' : 'text-white'}`}>
+                      {user.name?.split(' ')[0]}
+                    </span>
+                    <ChevronDown size={14} className={`transition-transform duration-300 ${userDropdownOpen ? 'rotate-180' : ''} ${scrolled || !isHomePage ? 'text-gray-400' : 'text-white/70'}`} />
+                  </button>
 
-            {/* Mobile User Actions */}
-            {user && (
-              <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
-                <Link 
-                  to="/profile" 
-                  className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl transition-colors"
-                  onClick={handleLinkClick}
-                >
-                  <User size={18} />
-                  My Profile
+                  {/* Dropdown menu */}
+                  {userDropdownOpen && (
+                    <div className="absolute right-0 mt-3 w-56 bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-100/50 py-2 z-50 transform origin-top-right transition-all">
+                      <div className="px-4 py-3 border-b border-gray-100">
+                        <p className="text-sm font-bold text-gray-900 truncate">{user.name}</p>
+                        <p className="text-xs font-medium text-emerald-600 capitalize mt-0.5">{user.role}</p>
+                      </div>
+                      <div className="p-2">
+                        <Link 
+                          to="/profile" 
+                          className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 rounded-xl transition-colors"
+                          onClick={handleLinkClick}
+                        >
+                          <User size={16} /> My Profile
+                        </Link>
+                        <button 
+                          onClick={onLogout}
+                          className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                        >
+                          <LogOut size={16} /> Sign Out
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center gap-3">
+                  <Link 
+                    to="/login" 
+                    className={`text-sm font-semibold px-4 py-2 rounded-full transition-all duration-300 ${
+                      scrolled || !isHomePage 
+                        ? 'text-gray-600 hover:text-emerald-600 hover:bg-emerald-50' 
+                        : 'text-white hover:text-emerald-200'
+                    }`}
+                  >
+                    Sign In
+                  </Link>
+                  <Link 
+                    to="/signup" 
+                    className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-sm font-semibold px-5 py-2.5 rounded-full shadow-md hover:shadow-xl hover:shadow-emerald-500/20 transform hover:-translate-y-0.5 transition-all duration-300"
+                  >
+                    <UserPlus size={16} /> Get Started
+                  </Link>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Mobile Menu Toggle */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className={`lg:hidden p-2 rounded-xl transition-colors ${
+              scrolled || !isHomePage ? 'text-gray-600 hover:bg-gray-100' : 'text-white hover:bg-white/20'
+            }`}
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Drawer */}
+      <div className={`fixed inset-y-0 right-0 z-50 w-full sm:w-80 bg-white shadow-2xl transform transition-transform duration-500 ease-in-out lg:hidden ${mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="h-full flex flex-col p-6">
+          <div className="flex items-center justify-between mb-8">
+            <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-teal-600">Gully Clean</span>
+            <button onClick={() => setMobileMenuOpen(false)} className="p-2 text-gray-500 hover:bg-gray-100 rounded-full">
+              <X size={20} />
+            </button>
+          </div>
+
+          {user && (
+            <div className="flex items-center gap-4 mb-8 p-4 bg-emerald-50 rounded-2xl">
+              <img 
+                src={`https://ui-avatars.com/api/?name=${user.name?.replace(/\s/g, '+')}&background=random&color=fff&bold=true`} 
+                alt="Avatar" 
+                className="w-12 h-12 rounded-full shadow-sm"
+              />
+              <div>
+                <p className="font-bold text-gray-900">{user.name}</p>
+                <p className="text-xs font-semibold text-emerald-600 capitalize">{user.role}</p>
+              </div>
+            </div>
+          )}
+
+          <div className="flex-1 overflow-y-auto space-y-2">
+            {filteredNavLinks.map(link => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                onClick={handleLinkClick}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-colors ${
+                    isActive ? 'bg-emerald-50 text-emerald-700' : 'text-gray-700 hover:bg-gray-50'
+                  }`
+                }
+              >
+                <div className={`${link.to === location.pathname ? 'text-emerald-500' : 'text-gray-400'}`}>
+                  {link.icon}
+                </div>
+                {link.text}
+              </NavLink>
+            ))}
+          </div>
+
+          <div className="pt-6 border-t border-gray-100 mt-auto">
+            {user ? (
+              <div className="space-y-2">
+                <Link to="/profile" onClick={handleLinkClick} className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl border border-gray-200 text-gray-700 font-medium hover:bg-gray-50 transition-colors">
+                  <User size={18} /> Profile Settings
                 </Link>
-                <button 
-                  onClick={onLogout}
-                  className="flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors w-full text-left"
-                >
-                  <LogOut size={18} />
-                  Logout
+                <button onClick={onLogout} className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl bg-red-50 text-red-600 font-bold hover:bg-red-100 transition-colors">
+                  <LogOut size={18} /> Sign Out
                 </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <Link to="/login" onClick={handleLinkClick} className="flex items-center justify-center w-full px-4 py-3 rounded-xl border-2 border-emerald-500 text-emerald-600 font-bold hover:bg-emerald-50 transition-colors">
+                  Sign In
+                </Link>
+                <Link to="/signup" onClick={handleLinkClick} className="flex items-center justify-center w-full px-4 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold shadow-lg hover:shadow-xl transition-all">
+                  Create Account
+                </Link>
               </div>
             )}
           </div>
         </div>
-      </nav>
+      </div>
 
-      {/* Backdrop for mobile menu */}
+      {/* Mobile Overlay */}
       {mobileMenuOpen && (
-        <div 
-          className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden"
-          onClick={() => setMobileMenuOpen(false)}
-        />
+        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-40 lg:hidden" onClick={() => setMobileMenuOpen(false)} />
       )}
     </header>
   );
