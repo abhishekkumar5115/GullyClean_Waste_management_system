@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchBins } from '../../store/binSlice';
 import BinCard from './BinCard';
-import Spinner from '../common/spinner';
+import Spinner from '../common/Spinner';
 
 const BinList = ({ limit }) => {
     const dispatch = useDispatch();

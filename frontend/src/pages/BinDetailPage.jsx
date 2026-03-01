@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchBinById } from '../store/binSlice';
 import BinDetails from '../components/bincomponents/BinDetails';
-import Spinner from '../components/common/spinner';
+import Spinner from '../components/common/Spinner';
 import { ArrowLeft } from 'lucide-react';
 
 const BinDetailPage = () => {

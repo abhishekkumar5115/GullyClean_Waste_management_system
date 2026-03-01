@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchPickups, assignPickup } from '../../store/pickupSlice';
 import { fetchWorkers } from '../../store/authSlice';
-import Spinner from '../common/spinner';
+import Spinner from '../common/Spinner';
 import { UserCheck, Calendar, MapPin, Search, ChevronRight, CheckCircle2, Clock, Truck } from 'lucide-react';
 
 const PickupList = () => {
