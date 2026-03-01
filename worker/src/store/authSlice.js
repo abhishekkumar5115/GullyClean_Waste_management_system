@@ -22,6 +22,21 @@ export const workerLogin = createAsyncThunk(
   }
 );
 
+// Worker Register Thunk
+export const workerRegister = createAsyncThunk(
+  'auth/workerRegister',
+  async (userData, thunkAPI) => {
+    try {
+      const response = await api.post('/auth/register', { ...userData, role: 'worker' });
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(
+        error.response?.data?.message || 'Registration failed.'
+      );
+    }
+  }
+);
+
 // Worker Logout Thunk
 export const workerLogout = createAsyncThunk(
   'auth/workerLogout',
@@ -74,6 +89,23 @@ const authSlice = createSlice({
         localStorage.removeItem('workerUser');
         localStorage.removeItem('worker_token');
         state.status = 'idle';
+      })
+      // Register
+      .addCase(workerRegister.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(workerRegister.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.workerUser = action.payload;
+        localStorage.setItem('workerUser', JSON.stringify(action.payload));
+        if (action.payload.token) {
+          localStorage.setItem('worker_token', action.payload.token);
+        }
+      })
+      .addCase(workerRegister.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
       });
   },
 });

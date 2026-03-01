@@ -4,9 +4,10 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useDispatch, useSelector } from 'react-redux';
 import { workerLogin, clearError } from '../../store/authSlice';
-import { Navigate } from 'react-router-dom';
-import { Eye, EyeOff, Lock, Mail, HardHat } from 'lucide-react';
+import { Navigate, Link } from 'react-router-dom';
+import { Eye, EyeOff, Lock, Mail, HardHat, Navigation, CheckCircle } from 'lucide-react';
 
+/* ---------------- Validation Schema ---------------- */
 const schema = yup.object().shape({
   email: yup.string().email('Invalid email format').required('Email is required'),
   password: yup.string().required('Password is required'),
@@ -29,80 +30,146 @@ const WorkerLoginForm = () => {
     dispatch(workerLogin(data));
   };
 
+  const isLoading = status === 'loading';
+
   if (workerUser) {
     return <Navigate to="/dashboard" replace />;
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-gray-800 rounded-3xl shadow-xl overflow-hidden border border-gray-700">
-        <div className="p-8">
-          <div className="text-center mb-10">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-blue-500/20 mb-4">
-              <HardHat size={40} className="text-blue-400" />
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* ---------------- Image Side Panel (Hidden on Mobile) ---------------- */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-blue-900">
+        <img 
+          src="https://images.unsplash.com/photo-1541888086-2d3340f1a9a8?auto=format&fit=crop&w=2000&q=80" 
+          alt="Worker Fleet Login" 
+          className="absolute inset-0 w-full h-full object-cover object-center opacity-40 mix-blend-overlay"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-700/80 to-indigo-900/90" />
+        
+        <div className="relative z-10 flex flex-col justify-between h-full p-16 text-white max-w-2xl">
+          <Link to="/" className="flex items-center gap-3 w-fit">
+            <div className="w-12 h-12 bg-white/10 rounded-xl backdrop-blur-md flex items-center justify-center border border-white/20 shadow-xl">
+              <HardHat className="w-7 h-7 text-blue-300" />
             </div>
-            <h2 className="text-3xl font-bold text-white mb-2">Worker Portal</h2>
-            <p className="text-gray-400">Sign in to view assigned pickups</p>
+            <span className="text-2xl font-black tracking-tight drop-shadow-md">Gully Clean</span>
+          </Link>
+
+          <div>
+            <h1 className="text-5xl font-black mb-6 leading-tight tracking-tight text-white drop-shadow-sm">
+              Welcome back to the fleet.
+            </h1>
+            <p className="text-blue-50/80 text-lg leading-relaxed max-w-lg mb-12 font-medium">
+              Access your daily dashboard. Review assigned routes, complete pickups, and
+              keep our city running smoothly.
+            </p>
+            
+            <div className="grid grid-cols-2 gap-6">
+               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 hover:bg-white/20 transition-colors">
+                <Navigation className="w-8 h-8 text-blue-300 mb-4" />
+                <h3 className="font-bold mb-1">Live Routing</h3>
+                <p className="text-blue-100/70 text-sm">View your immediate tasks.</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 hover:bg-white/20 transition-colors">
+                <CheckCircle className="w-8 h-8 text-indigo-300 mb-4" />
+                <h3 className="font-bold mb-1">Instant Impact</h3>
+                <p className="text-blue-100/70 text-sm">Log collections in real-time.</p>
+              </div>
+            </div>
+          </div>
+          
+          <p className="text-sm font-medium text-blue-200/60">
+            © {new Date().getFullYear()} Gully Clean Worker Portal.
+          </p>
+        </div>
+      </div>
+
+      {/* ---------------- Form Side Panel ---------------- */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 lg:p-16 relative">
+        <div className="w-full max-w-md">
+          {/* Mobile Logo Only */}
+          <Link to="/" className="lg:hidden flex items-center gap-3 w-fit mb-12">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center shadow-lg">
+              <HardHat className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-2xl font-black text-gray-900 tracking-tight">Gully Clean</span>
+          </Link>
+
+          <div className="mb-10">
+            <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mb-3 tracking-tight">Worker Portal</h2>
+            <p className="text-gray-500 font-medium tracking-wide">Sign in to view your assigned pickups.</p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Email Address</label>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            {/* Email */}
+            <div>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail size={18} className="text-gray-500" />
-                </div>
                 <input
                   type="email"
                   {...register('email')}
-                  className="w-full pl-10 pr-4 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
-                  placeholder="worker@example.com"
+                  placeholder="Email Address"
+                  className={`w-full pl-4 pr-4 py-3.5 bg-gray-50 border rounded-xl text-gray-900 text-sm font-medium placeholder-gray-400 transition-all focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white ${
+                    errors.email ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                  }`}
                 />
               </div>
-              {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>}
+              {errors.email && <p className="mt-1.5 text-xs font-semibold text-red-500">{errors.email.message}</p>}
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-300">Password</label>
+            {/* Password */}
+            <div>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock size={18} className="text-gray-500" />
-                </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   {...register('password')}
-                  className="w-full pl-10 pr-12 py-3 bg-gray-900 border border-gray-700 rounded-xl text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
-                  placeholder="••••••••"
+                  placeholder="Password"
+                  className={`w-full pl-4 pr-12 py-3.5 bg-gray-50 border rounded-xl text-gray-900 text-sm font-medium placeholder-gray-400 transition-all focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white ${
+                    errors.password ? 'border-red-300 bg-red-50' : 'border-gray-200 hover:border-gray-300'
+                  }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-300"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-blue-600 transition-colors"
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              {errors.password && <p className="text-red-400 text-sm mt-1">{errors.password.message}</p>}
+              {errors.password && <p className="mt-1.5 text-xs font-semibold text-red-500">{errors.password.message}</p>}
             </div>
 
             {error && (
-              <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-3">
-                <p className="text-red-400 text-sm text-center">{typeof error === 'string' ? error : 'Login failed'}</p>
+              <div className="bg-red-50/80 border border-red-200 rounded-xl p-4 mt-2">
+                <p className="text-red-600 text-sm font-semibold text-center">{typeof error === 'string' ? error : 'Login failed'}</p>
               </div>
             )}
 
             <button
               type="submit"
-              disabled={status === 'loading'}
-              className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isLoading}
+              className={`w-full py-4 mt-6 flex items-center justify-center gap-2 rounded-xl text-sm font-bold transition-all duration-300 ${
+                isLoading
+                  ? 'bg-gray-100/80 text-gray-400 cursor-not-allowed border border-gray-200'
+                  : 'text-white bg-gradient-to-r from-blue-600 to-indigo-700 hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5'
+              }`}
             >
-              {status === 'loading' ? (
-                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto" />
+              {isLoading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Authenticating...
+                </>
               ) : (
                 'Sign In to Dashboard'
               )}
             </button>
           </form>
+
+          <p className="mt-10 text-center text-sm font-medium text-gray-600">
+            Don't have an account?{' '}
+            <Link to="/signup" className="text-blue-600 hover:text-blue-700 font-bold hover:underline">
+              Sign up here
+            </Link>
+          </p>
         </div>
       </div>
     </div>

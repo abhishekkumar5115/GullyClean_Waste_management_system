@@ -175,9 +175,6 @@ const SignupForm = () => {
             {/* Name */}
             <div>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <User className={`w-5 h-5 ${errors.name ? 'text-red-400' : 'text-gray-400'}`} />
-                </div>
                 <input
                   {...register('name')}
                   type="text"
@@ -194,9 +191,6 @@ const SignupForm = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Mail className={`w-5 h-5 ${errors.email ? 'text-red-400' : 'text-gray-400'}`} />
-                  </div>
                   <input
                     {...register('email')}
                     type="email"
@@ -211,9 +205,7 @@ const SignupForm = () => {
 
               <div>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Phone className="w-5 h-5 text-gray-400" />
-                  </div>
+                  
                   <input
                     {...register('phone')}
                     type="tel"
@@ -227,9 +219,7 @@ const SignupForm = () => {
             {/* Password */}
             <div>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className={`w-5 h-5 ${errors.password ? 'text-red-400' : 'text-gray-400'}`} />
-                </div>
+                
                 <input
                   {...register('password')}
                   type={showPassword ? "text" : "password"}
@@ -273,9 +263,7 @@ const SignupForm = () => {
             {/* Confirm Password */}
             <div>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className={`w-5 h-5 ${errors.confirmPassword ? 'text-red-400' : 'text-gray-400'}`} />
-                </div>
+                
                 <input
                   {...register('confirmPassword')}
                   type={showConfirmPassword ? "text" : "password"}

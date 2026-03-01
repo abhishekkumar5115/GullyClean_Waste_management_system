@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { workerLogout } from '../../store/authSlice';
-import api from '../../api/api';
 import workerService from '../../services/workerService';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { LogOut, MapPin, Calendar, CheckCircle, Camera, UploadCloud, X, Recycle, User, ChevronDown } from 'lucide-react';
+import { LogOut, MapPin, Calendar, CheckCircle, UploadCloud, X, HardHat, User, ChevronDown, Clock, Truck, TrendingUp, Camera, AlertCircle } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
 
@@ -14,7 +13,6 @@ const WorkerDashboard = () => {
   const { workerUser } = useSelector((state) => state.auth);
   
   const [selectedTask, setSelectedTask] = useState(null);
-  
   const [photo, setPhoto] = useState(null);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const fileInputRef = useRef(null);
@@ -63,30 +61,26 @@ const WorkerDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F3F6F8]">
       {/* Navigation */}
-      <header className="fixed w-full top-0 z-50 transition-all duration-300 py-2 bg-white/80 backdrop-blur-xl shadow-sm border-b border-gray-200/50">
+      <header className="fixed w-full top-0 z-40 transition-all duration-300 py-3 bg-white/80 backdrop-blur-xl shadow-[0_2px_20px_rgb(0,0,0,0.04)] border-b border-gray-100">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14">
             {/* Brand Logo & Title */}
             <div className="flex items-center gap-4 sm:gap-6">
               <div className="flex items-center gap-3 group cursor-default">
-                <div className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg">
-                  <Recycle className="text-white w-6 h-6 transform group-hover:-rotate-90 transition-transform duration-500" />
+                <div className="relative flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 shadow-lg shadow-blue-500/30">
+                  <HardHat className="text-white w-6 h-6 transform group-hover:-rotate-12 transition-transform duration-500" />
                 </div>
                 <div className="flex flex-col hidden sm:flex">
-                  <span className="text-xl font-extrabold tracking-tight text-gray-900">
-                    Gully Clean
+                  <span className="text-xl font-black tracking-tight text-gray-900 leading-tight">
+                    Worker Portal
                   </span>
-                  <span className="text-[10px] font-medium uppercase tracking-wider text-blue-600">
-                    Smart City Waste
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-blue-600">
+                    City Services
                   </span>
                 </div>
               </div>
-              <div className="h-8 w-px bg-gray-200 hidden sm:block"></div>
-              <h1 className="text-lg font-bold text-gray-700">
-                Worker Dashboard
-              </h1>
             </div>
 
             {/* User Actions */}
@@ -94,36 +88,41 @@ const WorkerDashboard = () => {
               <div className="relative">
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-300"
+                  className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full border border-gray-200 bg-white hover:border-blue-300 hover:shadow-md transition-all duration-300"
                 >
                   <img 
                     alt="Avatar" 
-                    src={`https://ui-avatars.com/api/?name=${workerUser?.name?.replace(/\s/g, '+')}&background=random&color=fff&bold=true`} 
-                    className="w-7 h-7 rounded-full bg-gray-200 shadow-sm"
+                    src={`https://ui-avatars.com/api/?name=${workerUser?.name?.replace(/\s/g, '+')}&background=EBF5FF&color=2563EB&bold=true`} 
+                    className="w-8 h-8 rounded-full shadow-sm border border-blue-100"
                   />
-                  <span className="text-sm font-semibold text-gray-700 hidden sm:block">
-                    {workerUser?.name?.split(' ')[0]}
-                  </span>
+                  <div className="flex flex-col items-start hidden sm:flex">
+                    <span className="text-sm font-bold text-gray-800 leading-none">
+                      {workerUser?.name?.split(' ')[0]}
+                    </span>
+                    <span className="text-[10px] font-semibold text-gray-500 mt-0.5 capitalize">
+                      {workerUser?.role || 'Worker'}
+                    </span>
+                  </div>
                   <ChevronDown size={14} className={`transition-transform duration-300 text-gray-400 ${userDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {/* Dropdown menu */}
                 {userDropdownOpen && (
-                  <div className="absolute right-0 mt-3 w-56 bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl border border-gray-100/50 py-2 z-50 transform origin-top-right transition-all">
-                    <div className="px-4 py-3 border-b border-gray-100">
+                  <div className="absolute right-0 mt-3 w-64 bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] border border-gray-100 py-2 z-50 transform origin-top-right transition-all animate-in fade-in slide-in-from-top-2">
+                    <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
                       <p className="text-sm font-bold text-gray-900 truncate">{workerUser?.name}</p>
-                      <p className="text-xs font-medium text-blue-600 capitalize mt-0.5">{workerUser?.role || 'worker'}</p>
+                      <p className="text-xs font-semibold text-blue-600 capitalize mt-1">{workerUser?.email}</p>
                     </div>
                     <div className="p-2">
                       <Link 
                         to="/profile" 
-                        className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-colors mb-1"
+                        className="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-colors mb-1"
                       >
                         <User size={16} /> My Profile
                       </Link>
                       <button 
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                        className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-xl transition-colors"
                       >
                         <LogOut size={16} /> Sign Out
                       </button>
@@ -137,89 +136,137 @@ const WorkerDashboard = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto pt-28 pb-8 px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">Worker Dashboard</h2>
-          <p className="mt-1 text-sm text-gray-500">Manage your assigned bins and view your performance.</p>
+      <main className="max-w-7xl mx-auto pt-32 pb-12 px-4 sm:px-6 lg:px-8">
+        
+        {/* Premium Greeting Banner */}
+        <div className="relative rounded-3xl overflow-hidden mb-10 shadow-lg border border-blue-100/50">
+           <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-800 z-0"></div>
+           {/* Abstract shapes for decoration */}
+           <div className="absolute -top-24 -right-24 w-96 h-96 bg-white opacity-10 rounded-full blur-3xl z-0"></div>
+           <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-blue-400 opacity-20 rounded-full blur-2xl z-0"></div>
+           
+           <div className="relative z-10 p-8 sm:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+              <div>
+                 <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-white text-xs font-bold tracking-wider mb-4 border border-white/20">
+                    SQUAD DASHBOARD
+                 </span>
+                 <h1 className="text-3xl sm:text-4xl font-black text-white mb-2 tracking-tight">
+                    Hello, {workerUser?.name?.split(' ')[0]}! 👋
+                 </h1>
+                 <p className="text-blue-100 font-medium text-lg max-w-xl">
+                    Here is your work for today. Follow the map and take photos when done.
+                 </p>
+              </div>
+              <div className="hidden lg:block">
+                 <div className="w-24 h-24 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 shadow-inner transform rotate-3 hover:rotate-6 transition-all">
+                    <Truck className="w-12 h-12 text-white" />
+                 </div>
+              </div>
+           </div>
         </div>
 
         {/* Worker Stats */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex items-center gap-4">
-              <div className="p-4 bg-blue-100 rounded-xl text-blue-600">
-                <CheckCircle size={24} />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            
+            {/* Stat 1 */}
+            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 flex items-center gap-5 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+              <div className="p-4 bg-gradient-to-br from-green-400 to-green-500 rounded-2xl shadow-inner border border-green-500">
+                <CheckCircle className="text-white w-8 h-8" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Completed Today</p>
-                <h3 className="text-2xl font-bold text-gray-900">{stats.dailyCompleted}</h3>
+                <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1">Done Today</p>
+                <div className="flex items-baseline gap-2">
+                  <h3 className="text-4xl font-black text-gray-900">{stats.dailyCompleted}</h3>
+                </div>
               </div>
             </div>
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex items-center gap-4">
-              <div className="p-4 bg-green-100 rounded-xl text-green-600">
-                <CheckCircle size={24} />
+
+            {/* Stat 2 */}
+            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 flex items-center gap-5 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+              <div className="p-4 bg-gradient-to-br from-blue-400 to-blue-500 rounded-2xl shadow-inner border border-blue-500">
+                <TrendingUp className="text-white w-8 h-8" />
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Total Completed</p>
-                <h3 className="text-2xl font-bold text-gray-900">{stats.totalCompleted}</h3>
+                <p className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-1">Total Done</p>
+                <div className="flex items-baseline gap-2">
+                  <h3 className="text-4xl font-black text-gray-900">{stats.totalCompleted}</h3>
+                </div>
               </div>
             </div>
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 flex items-center gap-4">
-              <div className="p-4 bg-orange-100 rounded-xl text-orange-600">
-                <Calendar size={24} />
+
+            {/* Stat 3 */}
+            <div className="bg-white rounded-3xl shadow-sm border border-orange-200 p-6 flex items-center gap-5 hover:shadow-md hover:-translate-y-1 transition-all duration-300 relative overflow-hidden bg-orange-50/30">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-orange-100 rounded-bl-full -z-0"></div>
+              <div className="p-4 bg-gradient-to-br from-orange-400 to-orange-500 rounded-2xl shadow-lg border border-orange-500 relative z-10 animate-pulse">
+                <Clock className="text-white w-8 h-8" />
               </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500">Pending Tasks</p>
-                <h3 className="text-2xl font-bold text-gray-900">{stats.pendingTasks}</h3>
+              <div className="relative z-10">
+                <p className="text-sm font-bold text-orange-600 uppercase tracking-wider mb-1">To Do Now</p>
+                <div className="flex items-baseline gap-2">
+                  <h3 className="text-4xl font-black text-gray-900">{stats.pendingTasks}</h3>
+                  {stats.pendingTasks > 0 && (
+                    <span className="text-xs font-bold text-orange-600 flex items-center gap-1">
+                      <AlertCircle size={14} /> Look Below
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
+
           </div>
         )}
 
-        <div className="mb-6">
-          <h2 className="text-xl font-bold text-gray-900">Assigned Pickups</h2>
+        {/* Assigned Pickups Section Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h2 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">
+              <MapPin className="text-blue-600 w-8 h-8" /> Go to these places
+            </h2>
+          </div>
         </div>
 
         {tasksLoading ? (
           <div className="flex justify-center py-20">
-            <div className="h-10 w-10 border-4 border-blue-500 border-t-transparent flex items-center justify-center rounded-full animate-spin" />
+            <div className="h-16 w-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
           </div>
         ) : tasks.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center">
-            <CheckCircle className="mx-auto h-16 w-16 text-green-400 mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">You're all caught up!</h3>
-            <p className="text-gray-500">There are currently no bins assigned to you for pickup.</p>
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-16 text-center max-w-3xl mx-auto">
+            <div className="w-32 h-32 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner border border-green-200">
+               <CheckCircle className="h-16 w-16 text-green-500" />
+            </div>
+            <h3 className="text-3xl font-black text-gray-900 mb-3">All Done! 🎉</h3>
+            <p className="text-gray-500 text-xl">You can rest now. No more bins to clean.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {tasks.map((task) => (
-              <div key={task._id} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#F58AED]/10 text-[#F58AED] border border-[#F58AED]/20">
-                      Bin: {task.bin?.binId}
-                    </span>
-                    <span className="text-xs text-gray-500 flex items-center gap-1">
-                      <Calendar size={14} />
-                      {new Date(task.requestedDate).toLocaleDateString()}
-                    </span>
-                  </div>
+              <div key={task._id} className="bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border-2 border-blue-100 overflow-hidden hover:shadow-2xl hover:border-blue-400 hover:-translate-y-2 transition-all duration-300 flex flex-col">
+                <div className="p-2 border-b border-blue-100 bg-blue-600 text-center">
+                   <p className="text-white font-black text-lg tracking-widest uppercase">Bin {task.bin?.binId || '123'}</p>
+                </div>
+                <div className="p-8 flex-1 flex flex-col items-center text-center">
                   
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">{task.location}</h3>
+                  <MapPin className="text-red-500 w-12 h-12 mb-3 drop-shadow-sm" />
+                  <h3 className="text-2xl font-black text-gray-900 mb-4 leading-snug">
+                    {task.location}
+                  </h3>
                   
                   {task.notes && (
-                    <p className="text-sm text-gray-600 mb-4 bg-gray-50 p-3 rounded-lg border border-gray-100 italic">
-                      "{task.notes}"
-                    </p>
+                    <div className="w-full mt-2 mb-6 bg-yellow-50 p-4 rounded-xl border border-yellow-200">
+                      <p className="text-lg text-yellow-800 font-bold">⚠️ "{task.notes}"</p>
+                    </div>
                   )}
                   
-                  <div className="mt-6 pt-4 border-t border-gray-100">
+                  <div className="flex-1"></div>
+                  
+                  <div className="w-full mt-2">
                     <button
                       onClick={() => setSelectedTask(task)}
-                      className="w-full inline-flex justify-center items-center gap-2 px-4 py-2.5 border border-transparent text-sm font-medium rounded-xl shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                      className="w-full flex justify-center items-center gap-3 px-6 py-5 border-4 border-transparent text-xl font-black rounded-2xl text-white bg-green-500 hover:bg-green-600 hover:scale-105 active:scale-95 shadow-lg shadow-green-500/40 transition-all duration-300 group"
                     >
-                      <CheckCircle size={18} />
-                      Mark as Completed
+                      <Camera size={32} className="transform group-hover:rotate-12 transition-transform" />
+                      TAKE PHOTO TO FINISH
                     </button>
                   </div>
                 </div>
@@ -231,51 +278,54 @@ const WorkerDashboard = () => {
 
       {/* Completion Modal */}
       {selectedTask && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-gray-900/75 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="p-6 overflow-y-auto">
-              {/* Header */}
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                    <CheckCircle className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900">Complete Pickup</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-gray-900/80 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden flex flex-col max-h-[95vh] border-4 border-blue-500 shadow-2xl animate-in zoom-in-95 duration-200">
+            {/* Modal Header */}
+            <div className="px-6 py-6 border-b-4 border-blue-100 flex items-center justify-between bg-blue-50">
+              <div className="flex items-center gap-4">
+                <div className="flex-shrink-0 w-14 h-14 rounded-full bg-blue-600 text-white flex items-center justify-center">
+                  <Camera size={32} />
                 </div>
-                <button 
-                  onClick={() => { setSelectedTask(null); setPhoto(null); }} 
-                  className="text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-100"
-                >
-                  <X size={20} />
-                </button>
+                <h3 className="text-2xl font-black text-gray-900">Take a Photo</h3>
               </div>
-              
-              <div className="mb-6 space-y-1">
-                <p className="text-gray-900 font-medium flex items-center gap-2">
-                  <MapPin size={16} className="text-gray-500" /> 
-                  {selectedTask.location}
-                </p>
-                <p className="text-sm text-gray-500 pl-6">Bin ID: {selectedTask.bin?.binId}</p>
+              <button 
+                onClick={() => { setSelectedTask(null); setPhoto(null); }} 
+                className="w-12 h-12 bg-red-100 text-red-600 hover:bg-red-500 hover:text-white flex items-center justify-center rounded-full transition-all border-2 border-red-200 font-bold"
+              >
+                <X size={28} />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto">
+              {/* Location display strictly visual */}
+              <div className="mb-6 bg-gray-50 rounded-2xl p-6 text-center border-2 border-gray-200 shadow-sm">
+                <MapPin size={40} className="text-red-500 mx-auto mb-2" /> 
+                <p className="text-gray-900 font-black text-2xl leading-tight mb-2">{selectedTask.location}</p>
+                <p className="text-xl font-bold text-gray-500 bg-gray-200 inline-block px-4 py-1 rounded-full">Bin ID: {selectedTask.bin?.binId}</p>
               </div>
 
-              {/* Upload Area */}
+              {/* Upload Dropzone */}
               <div 
-                className={`border-2 border-dashed rounded-xl p-8 mb-6 cursor-pointer flex flex-col items-center justify-center text-center transition-colors ${
-                  photo ? 'border-green-300 bg-green-50 hover:bg-green-100' : 'border-blue-200 bg-blue-50 hover:bg-blue-100'
+                className={`border-4 border-dashed rounded-3xl p-10 mb-6 cursor-pointer flex flex-col items-center justify-center text-center transition-all duration-300 group ${
+                  photo ? 'border-green-500 bg-green-50 hover:bg-green-100' : 'border-blue-300 bg-blue-50 hover:bg-blue-100 hover:border-blue-500 scale-100 active:scale-95'
                 }`}
                 onClick={() => fileInputRef.current?.click()}
               >
                 {photo ? (
                   <>
-                    <CheckCircle className="w-12 h-12 text-green-500 mb-3" />
-                    <p className="font-semibold text-gray-900 truncate max-w-full px-4">{photo.name}</p>
-                    <p className="text-sm text-gray-500 mt-1">Tap to change image</p>
+                    <div className="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mb-4 transform group-hover:scale-110 transition-transform shadow-lg shadow-green-500/40 border-4 border-white">
+                       <CheckCircle className="w-12 h-12 text-white" />
+                    </div>
+                    <p className="font-black text-gray-900 text-2xl truncate max-w-full px-4 mb-2">{photo.name}</p>
+                    <p className="text-lg font-bold text-green-700 bg-green-200 px-6 py-2 rounded-full uppercase tracking-wider border-2 border-green-300">Tap to Take Another</p>
                   </>
                 ) : (
                   <>
-                    <UploadCloud className="w-12 h-12 text-blue-500 mb-3" />
-                    <p className="font-semibold text-gray-900">Upload Empty Bin Photo</p>
-                    <p className="text-sm text-gray-500 mt-1">Required proof of completion</p>
+                    <div className="w-24 h-24 bg-blue-500 rounded-full flex items-center justify-center mb-6 transform group-hover:-translate-y-2 transition-transform shadow-lg shadow-blue-500/40 border-4 border-white">
+                       <Camera className="w-12 h-12 text-white" />
+                    </div>
+                    <p className="font-black text-blue-700 text-3xl mb-2 uppercase">TAP HERE</p>
+                    <p className="text-lg font-bold text-gray-600">To open your camera</p>
                   </>
                 )}
                 <input 
@@ -288,29 +338,29 @@ const WorkerDashboard = () => {
               </div>
 
               {/* Actions */}
-              <div className="flex flex-col sm:flex-row gap-3 mt-8">
-                <button
-                  onClick={() => { setSelectedTask(null); setPhoto(null); }}
-                  className="w-full sm:w-1/3 py-3 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all"
-                >
-                  Cancel
-                </button>
+              <div className="flex flex-col gap-4 mt-8">
                 <button
                   onClick={handleComplete}
                   disabled={completeMutation.isPending || !photo}
-                  className="w-full sm:w-2/3 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                  className="w-full py-5 px-6 bg-green-500 hover:bg-green-600 text-white text-2xl font-black rounded-2xl shadow-xl hover:shadow-2xl transition-all disabled:opacity-40 disabled:cursor-not-allowed flex justify-center items-center gap-3 uppercase tracking-widest border-b-4 border-green-700 active:border-b-0 active:translate-y-1"
                 >
                   {completeMutation.isPending ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Uploading...
+                      <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin" />
+                      UPLOADING...
                     </>
                   ) : (
                     <>
-                      <CheckCircle size={20} />
-                      Confirm Completion
+                      <CheckCircle size={32} />
+                      DONE. SEND IT!
                     </>
                   )}
+                </button>
+                <button
+                  onClick={() => { setSelectedTask(null); setPhoto(null); }}
+                  className="w-full py-4 px-4 bg-gray-200 hover:bg-gray-300 text-gray-600 text-xl font-black rounded-2xl transition-all uppercase tracking-wider"
+                >
+                  CANCEL / GO BACK
                 </button>
               </div>
             </div>
