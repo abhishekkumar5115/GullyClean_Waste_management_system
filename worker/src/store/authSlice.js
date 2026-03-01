@@ -52,6 +52,7 @@ export const workerLogout = createAsyncThunk(
 
 const initialState = {
   workerUser: JSON.parse(localStorage.getItem('workerUser')) || null,
+  isLocationEnabled: JSON.parse(localStorage.getItem('workerLocationTracking')) || false,
   status: 'idle',
   error: null,
 };
@@ -62,6 +63,10 @@ const authSlice = createSlice({
   reducers: {
     clearError: (state) => {
       state.error = null;
+    },
+    toggleLocationTracking: (state) => {
+      state.isLocationEnabled = !state.isLocationEnabled;
+      localStorage.setItem('workerLocationTracking', state.isLocationEnabled);
     }
   },
   extraReducers: (builder) => {
@@ -110,5 +115,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearError } = authSlice.actions;
+export const { clearError, toggleLocationTracking } = authSlice.actions;
 export default authSlice.reducer;

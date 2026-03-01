@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { workerLogout } from '../../store/authSlice';
+import { workerLogout, toggleLocationTracking } from '../../store/authSlice';
 import workerService from '../../services/workerService';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { LogOut, MapPin, Calendar, CheckCircle, UploadCloud, X, HardHat, User, ChevronDown, Clock, Truck, TrendingUp, Camera, AlertCircle } from 'lucide-react';
@@ -10,12 +10,55 @@ import { Link } from 'react-router-dom';
 const WorkerDashboard = () => {
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
-  const { workerUser } = useSelector((state) => state.auth);
+  const { workerUser, isLocationEnabled } = useSelector((state) => state.auth);
   
   const [selectedTask, setSelectedTask] = useState(null);
   const [photo, setPhoto] = useState(null);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
+  const [currentLocationName, setCurrentLocationName] = useState(null);
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    let interval;
+    if (isLocationEnabled && navigator.geolocation) {
+      const fetchLocationName = () => {
+         navigator.geolocation.getCurrentPosition(async (position) => {
+             const { latitude, longitude } = position.coords;
+             try {
+                // Inform backend that we are online and tracking
+                await workerService.updateLocation(latitude, longitude, true);
+
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+                if (res.ok) {
+                   const data = await res.json();
+                   if (data && data.display_name) {
+                      const parts = data.display_name.split(', ');
+                      const shortName = parts.slice(0, 3).join(', ');
+                      setCurrentLocationName(shortName);
+                      return;
+                   }
+                }
+             } catch (e) {
+                console.error("Location update/geocoding failed", e);
+             }
+             setCurrentLocationName(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+         });
+      };
+      
+      fetchLocationName();
+      interval = setInterval(fetchLocationName, 60000); // update every minute
+    } else {
+      setCurrentLocationName(null);
+      // Attempt to tell backend we went offline (providing 0,0 or last known coordinates if we had them)
+      try {
+        workerService.updateLocation(0, 0, false).catch(() => {});
+      } catch (e) {}
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isLocationEnabled]);
 
   // React Query Fetch Tasks
   const { data: tasks = [], isLoading: tasksLoading } = useQuery({
@@ -31,7 +74,7 @@ const WorkerDashboard = () => {
 
   // React Query Completion Mutation
   const completeMutation = useMutation({
-    mutationFn: ({ taskId, photoFile }) => workerService.completePickup(taskId, photoFile),
+    mutationFn: ({ taskId, photoFile, coordinates }) => workerService.completePickup(taskId, photoFile, coordinates),
     onSuccess: () => {
       setSelectedTask(null);
       setPhoto(null);
@@ -53,7 +96,26 @@ const WorkerDashboard = () => {
       return;
     }
     
-    completeMutation.mutate({ taskId: selectedTask._id, photoFile: photo });
+    if (!navigator.geolocation) {
+       toast.warning("Geolocation is not supported. Proximity check skipped.");
+       completeMutation.mutate({ taskId: selectedTask._id, photoFile: photo });
+       return;
+    }
+
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            setIsLocating(false);
+            const coordinates = { lat: position.coords.latitude, lng: position.coords.longitude };
+            completeMutation.mutate({ taskId: selectedTask._id, photoFile: photo, coordinates });
+        },
+        (error) => {
+            setIsLocating(false);
+            console.error("Geolocation error:", error);
+            completeMutation.mutate({ taskId: selectedTask._id, photoFile: photo });
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+    );
   };
 
   const handleLogout = () => {
@@ -153,9 +215,43 @@ const WorkerDashboard = () => {
                  <h1 className="text-3xl sm:text-4xl font-black text-white mb-2 tracking-tight">
                     Hello, {workerUser?.name?.split(' ')[0]}! 👋
                  </h1>
-                 <p className="text-blue-100 font-medium text-lg max-w-xl">
+                 <p className="text-blue-100 font-medium text-lg max-w-xl mb-6">
                     Here is your work for today. Follow the map and take photos when done.
                  </p>
+                 <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => dispatch(toggleLocationTracking())}
+                        className={`relative inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl font-bold text-sm transition-all duration-300 shadow-lg hover:shadow-xl hover:-translate-y-0.5 border ${
+                            isLocationEnabled 
+                            ? 'bg-emerald-500 hover:bg-emerald-400 text-white border-emerald-400 shadow-emerald-500/30' 
+                            : 'bg-white/10 hover:bg-white/20 text-white border-white/20 backdrop-blur-md'
+                        }`}
+                    >
+                        {isLocationEnabled ? (
+                            <>
+                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full animate-ping"></div>
+                                <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-300 rounded-full border border-white"></div>
+                                <MapPin size={18} className="animate-pulse" /> ONLINE & TRACKING
+                            </>
+                        ) : (
+                            <>
+                                <MapPin size={18} className="opacity-70" /> GO ONLINE
+                            </>
+                        )}
+                    </button>
+                    <p className="text-xs font-semibold text-blue-200/80 max-w-[200px] leading-tight hidden sm:block">
+                        {isLocationEnabled ? (
+                            <>
+                                Your location is being shared with dispatch.
+                                {currentLocationName && (
+                                    <span className="block mt-1 text-emerald-300 font-bold tracking-wide">
+                                        📍 {currentLocationName}
+                                    </span>
+                                )}
+                            </>
+                        ) : 'Location tracking is paused.'}
+                    </p>
+                 </div>
               </div>
               <div className="hidden lg:block">
                  <div className="w-24 h-24 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 shadow-inner transform rotate-3 hover:rotate-6 transition-all">
@@ -341,13 +437,13 @@ const WorkerDashboard = () => {
               <div className="flex flex-col gap-4 mt-8">
                 <button
                   onClick={handleComplete}
-                  disabled={completeMutation.isPending || !photo}
+                  disabled={completeMutation.isPending || isLocating || !photo}
                   className="w-full py-5 px-6 bg-green-500 hover:bg-green-600 text-white text-2xl font-black rounded-2xl shadow-xl hover:shadow-2xl transition-all disabled:opacity-40 disabled:cursor-not-allowed flex justify-center items-center gap-3 uppercase tracking-widest border-b-4 border-green-700 active:border-b-0 active:translate-y-1"
                 >
-                  {completeMutation.isPending ? (
+                  {completeMutation.isPending || isLocating ? (
                     <>
                       <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin" />
-                      UPLOADING...
+                      {isLocating ? 'LOCATING...' : 'UPLOADING...'}
                     </>
                   ) : (
                     <>

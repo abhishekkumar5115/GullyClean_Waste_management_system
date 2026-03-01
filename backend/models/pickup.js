@@ -7,6 +7,10 @@ const pickupSchema = new mongoose.Schema({
     assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     notes: { type: String },
     location: { type: String, required: true },
+    coordinates: {
+        lat: { type: Number },
+        lng: { type: Number }
+    },
     requestedDate: { type: Date, default: Date.now },
     scheduledFor: { type: Date },
     completedDate: { type: Date },

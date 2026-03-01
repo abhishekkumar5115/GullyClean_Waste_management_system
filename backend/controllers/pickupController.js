@@ -5,28 +5,85 @@ const mongoose = require('mongoose');
 
 // @desc    Create a new pickup request
 const createPickup = async (req, res) => {
-  const { binId, location, notes, citizenPhoto } = req.body;
+  const { binId, location, coordinates, notes, citizenPhoto } = req.body;
   if (!binId) {
       return res.status(400).json({ message: 'binId is required' });
   }
-  let bin = await Bin.findOne({binId:String(binId)});
-  if(!bin) {
-    bin = await Bin.create({
-      binId:binId,
-      location: location,
-      status: "full"
-    });
-  }
+    let bin = await Bin.findOne({binId:String(binId)});
+    if(!bin) {
+      bin = await Bin.create({
+        binId:binId,
+        location: location,
+        coordinates: coordinates || null,
+        status: "full"
+      });
+    } else if (coordinates) {
+      bin.coordinates = coordinates; // Update existing bin with new coords
+    }
 
-  // Randomly assign to a worker automatically
-  const workers = await User.find({ role: 'worker' });
+  // Assign to geographically nearest ONLINE worker (based on explicit tracking flag)
+  const allWorkers = await User.find({ role: 'worker' });
+  
+  let workers = allWorkers.filter(w => 
+      w.isTracking &&
+      w.location && 
+      (w.location.lat !== 0 || w.location.lng !== 0)
+  );
+  
+  // Fallback to all workers if no one is explicitly online
+  if (workers.length === 0) {
+      workers = allWorkers;
+  }
+  
   let assignedTo = null;
   let status = 'pending';
   
-  if (workers.length > 0) {
-    const randomWorker = workers[Math.floor(Math.random() * workers.length)];
-    assignedTo = randomWorker._id;
-    status = 'assigned';
+  if (workers.length > 0 && coordinates && coordinates.lat && coordinates.lng) {
+      let nearestWorker = null;
+      let minDistance = Infinity;
+
+      // Haversine formula to calculate distance between two lat/lng coordinates
+      const getDistanceFromLatLonInKm = (lat1, lon1, lat2, lon2) => {
+          const R = 6371; // Radius of the earth in km
+          const dLat = (lat2 - lat1) * (Math.PI / 180);
+          const dLon = (lon2 - lon1) * (Math.PI / 180);
+          const a = 
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+            Math.sin(dLon / 2) * Math.sin(dLon / 2); 
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+          const d = R * c; 
+          return d;
+      };
+
+      workers.forEach(worker => {
+          if (worker.location && worker.location.lat && worker.location.lng) {
+              const distance = getDistanceFromLatLonInKm(
+                  coordinates.lat, coordinates.lng, 
+                  worker.location.lat, worker.location.lng
+              );
+              
+              if (distance < minDistance) {
+                  minDistance = distance;
+                  nearestWorker = worker;
+              }
+          }
+      });
+
+      if (nearestWorker) {
+          assignedTo = nearestWorker._id;
+          status = 'assigned';
+      } else {
+          // Fallback to random if no worker has generated a location yet
+          const randomWorker = workers[Math.floor(Math.random() * workers.length)];
+          assignedTo = randomWorker._id;
+          status = 'assigned';
+      }
+  } else if (workers.length > 0) {
+      // Fallback if bin location wasn't properly passed
+      const randomWorker = workers[Math.floor(Math.random() * workers.length)];
+      assignedTo = randomWorker._id;
+      status = 'assigned';
   }
 
   const pickup = new Pickup({
@@ -34,6 +91,7 @@ const createPickup = async (req, res) => {
     user: req.user._id,
     notes,
     location: location,
+    coordinates: coordinates || null,
     citizenPhoto: citizenPhoto || null,
     status: status,
     assignedTo: assignedTo

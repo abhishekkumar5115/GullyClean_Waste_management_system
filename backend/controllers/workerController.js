@@ -1,5 +1,38 @@
 const Pickup = require('../models/pickup');
 const Bin = require('../models/bin');
+const User = require('../models/user');
+
+// @desc    Update worker's live location
+// @route   PUT /api/worker/location
+// @access  Private/Worker
+const updateWorkerLocation = async (req, res) => {
+  try {
+    const { lat, lng, isTracking } = req.body;
+    
+    if (lat === undefined || lng === undefined) {
+      return res.status(400).json({ message: 'Latitude and Longitude are required' });
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'Worker not found' });
+    }
+
+    user.location.lat = Number(lat);
+    user.location.lng = Number(lng);
+    user.location.lastUpdated = Date.now();
+    if (isTracking !== undefined) {
+      user.isTracking = isTracking;
+    }
+    
+    await user.save();
+
+    res.status(200).json({ message: 'Location updated successfully', location: user.location });
+  } catch (error) {
+    console.error('Error updating worker location:', error);
+    res.status(500).json({ message: 'Server Error updating location' });
+  }
+};
 
 // @desc    Get assigned pickups for logged-in worker
 // @route   GET /api/worker/tasks
@@ -20,7 +53,7 @@ const getAssignedPickups = async (req, res) => {
 // @access  Private/Worker
 const completePickupPhoto = async (req, res) => {
   try {
-    const { workerPhoto } = req.body;
+    const { workerPhoto, coordinates } = req.body;
     const pickup = await Pickup.findById(req.params.id);
 
     if (!pickup) {
@@ -29,6 +62,35 @@ const completePickupPhoto = async (req, res) => {
 
     if (pickup.assignedTo.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Not authorized to complete this pickup' });
+    }
+
+    // Distance validation
+    if (pickup.coordinates && pickup.coordinates.lat && pickup.coordinates.lng) {
+        if (!coordinates || !coordinates.lat || !coordinates.lng) {
+            return res.status(400).json({ message: 'Location access is required to verify distance to the bin.' });
+        }
+
+        const getDistanceFromLatLonInKm = (lat1, lon1, lat2, lon2) => {
+            const R = 6371; 
+            const dLat = (lat2 - lat1) * (Math.PI / 180);
+            const dLon = (lon2 - lon1) * (Math.PI / 180);
+            const a = 
+              Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+              Math.sin(dLon / 2) * Math.sin(dLon / 2); 
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+            return R * c; 
+        };
+
+        const distance = getDistanceFromLatLonInKm(
+            pickup.coordinates.lat, pickup.coordinates.lng,
+            coordinates.lat, coordinates.lng
+        );
+
+        // 0.5 km = 500 meters
+        if (distance > 0.5) {
+            return res.status(400).json({ message: `You are too far (${(distance*1000).toFixed(0)}m) from the bin location to complete this task.` });
+        }
     }
 
     pickup.status = 'completed';
@@ -72,5 +134,9 @@ const getWorkerDashboardStats = async (req, res) => {
     res.status(500).json({ message: 'Error fetching stats' });
   }
 };
-
-module.exports = { getAssignedPickups, completePickupPhoto, getWorkerDashboardStats };
+module.exports = { 
+  getAssignedPickups, 
+  completePickupPhoto, 
+  getWorkerDashboardStats,
+  updateWorkerLocation
+};
