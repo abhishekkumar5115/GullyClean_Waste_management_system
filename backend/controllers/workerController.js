@@ -1,5 +1,5 @@
-const Pickup = require('../models/Pickup');
-const Bin = require('../models/Bin');
+const Pickup = require('../models/pickup');
+const Bin = require('../models/bin');
 
 // @desc    Get assigned pickups for logged-in worker
 // @route   GET /api/worker/tasks

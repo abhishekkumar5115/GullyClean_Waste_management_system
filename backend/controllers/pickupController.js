@@ -1,5 +1,5 @@
-const Pickup = require('../models/Pickup');
-const Bin = require('../models/Bin');
+const Pickup = require('../models/pickup');
+const Bin = require('../models/bin');
 const User = require('../models/user');
 const mongoose = require('mongoose');
 

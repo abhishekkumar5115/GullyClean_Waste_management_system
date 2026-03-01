@@ -1,4 +1,4 @@
-const Bin = require('../models/Bin');
+const Bin = require('../models/bin');
 
 // @desc    Get all bins
 const getBins = async (req, res) => {

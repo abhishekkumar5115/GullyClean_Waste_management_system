@@ -1,5 +1,5 @@
 const User = require('../models/user');
-const Pickup = require('../models/Pickup');
+const Pickup = require('../models/pickup');
 
 // We'll create a basic admin overview endpoint
 exports.getAdminDashboardStats = async (req, res) => {
@@ -9,7 +9,7 @@ exports.getAdminDashboardStats = async (req, res) => {
         const citizensCount = await User.countDocuments({ role: 'citizen' });
 
         // Bin stats
-        const Bin = require('../models/Bin');
+        const Bin = require('../models/bin');
         const emptyBins = await Bin.countDocuments({ status: 'empty' });
         const halfFullBins = await Bin.countDocuments({ status: 'half-full' });
         const fullBins = await Bin.countDocuments({ status: 'full' });
