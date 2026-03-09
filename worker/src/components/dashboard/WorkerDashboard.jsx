@@ -6,6 +6,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { LogOut, MapPin, Calendar, CheckCircle, UploadCloud, X, HardHat, User, ChevronDown, Clock, Truck, TrendingUp, Camera, AlertCircle } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { Link } from 'react-router-dom';
+import InstallPWA from '../common/InstallPWA';
+import Footer from '../common/Footer';
 
 const WorkerDashboard = () => {
   const dispatch = useDispatch();
@@ -27,7 +29,14 @@ const WorkerDashboard = () => {
              const { latitude, longitude } = position.coords;
              try {
                 // Inform backend that we are online and tracking
-                await workerService.updateLocation(latitude, longitude, true);
+                const locationRes = await workerService.updateLocation(latitude, longitude, true);
+                
+                // If the server auto-assigned pending pickups to us, refresh the task list
+                if (locationRes?.data?.newlyAssigned > 0) {
+                  queryClient.invalidateQueries({ queryKey: ['workerTasks'] });
+                  queryClient.invalidateQueries({ queryKey: ['workerStats'] });
+                  toast.info(`📦 ${locationRes.data.newlyAssigned} new task(s) assigned to you!`);
+                }
 
                 const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
                 if (res.ok) {
@@ -123,45 +132,59 @@ const WorkerDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F3F6F8]">
+    <div className="min-h-screen bg-[#F3F6F8] flex flex-col">
       {/* Navigation */}
-      <header className="fixed w-full top-0 z-40 transition-all duration-300 py-3 bg-white/80 backdrop-blur-xl shadow-[0_2px_20px_rgb(0,0,0,0.04)] border-b border-gray-100">
+      <header className="fixed w-full top-0 z-40 transition-all py-3 bg-gray-900 border-b border-gray-800 shadow-lg">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14">
             {/* Brand Logo & Title */}
             <div className="flex items-center gap-4 sm:gap-6">
               <div className="flex items-center gap-3 group cursor-default">
-                <div className="relative flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 shadow-lg shadow-blue-500/30">
+                <div className="relative flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/20 border border-blue-400/30">
                   <HardHat className="text-white w-6 h-6 transform group-hover:-rotate-12 transition-transform duration-500" />
                 </div>
                 <div className="flex flex-col hidden sm:flex">
-                  <span className="text-xl font-black tracking-tight text-gray-900 leading-tight">
-                    Worker Portal
+                  <span className="text-xl font-bold tracking-tight text-white leading-tight">
+                    GullyClean
                   </span>
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-blue-600">
-                    City Services
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-blue-400">
+                    Worker Portal
                   </span>
                 </div>
               </div>
             </div>
 
             {/* User Actions */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-5">
+              <div className="hidden lg:block">
+                <InstallPWA />
+              </div>
+              
+              {/* Online Indicator Box */}
+              <div className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 bg-gray-800/80 border border-gray-700 rounded-lg">
+                 <div className="flex items-center gap-2">
+                   <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
+                   <span className="text-[10px] uppercase tracking-wider font-bold text-gray-300">Live</span>
+                 </div>
+              </div>
+              
+              <div className="h-8 w-px bg-gray-700 hidden sm:block"></div>
+
               <div className="relative">
                 <button
                   onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full border border-gray-200 bg-white hover:border-blue-300 hover:shadow-md transition-all duration-300"
+                  className="flex items-center gap-3 pl-2 pr-4 py-1.5 rounded-full border border-gray-700 bg-gray-800 hover:bg-gray-700 hover:border-gray-500 transition-all duration-300"
                 >
                   <img 
                     alt="Avatar" 
-                    src={`https://ui-avatars.com/api/?name=${workerUser?.name?.replace(/\s/g, '+')}&background=EBF5FF&color=2563EB&bold=true`} 
-                    className="w-8 h-8 rounded-full shadow-sm border border-blue-100"
+                    src={`https://ui-avatars.com/api/?name=${workerUser?.name?.replace(/\s/g, '+')}&background=1e3a8a&color=bfdbfe&bold=true`} 
+                    className="w-8 h-8 rounded-full shadow-sm border border-gray-600"
                   />
                   <div className="flex flex-col items-start hidden sm:flex">
-                    <span className="text-sm font-bold text-gray-800 leading-none">
+                    <span className="text-sm font-bold text-gray-100 leading-none">
                       {workerUser?.name?.split(' ')[0]}
                     </span>
-                    <span className="text-[10px] font-semibold text-gray-500 mt-0.5 capitalize">
+                    <span className="text-[10px] font-semibold text-blue-400 mt-0.5 capitalize">
                       {workerUser?.role || 'Worker'}
                     </span>
                   </div>
@@ -170,21 +193,21 @@ const WorkerDashboard = () => {
 
                 {/* Dropdown menu */}
                 {userDropdownOpen && (
-                  <div className="absolute right-0 mt-3 w-64 bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.1)] border border-gray-100 py-2 z-50 transform origin-top-right transition-all animate-in fade-in slide-in-from-top-2">
-                    <div className="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
-                      <p className="text-sm font-bold text-gray-900 truncate">{workerUser?.name}</p>
-                      <p className="text-xs font-semibold text-blue-600 capitalize mt-1">{workerUser?.email}</p>
+                  <div className="absolute right-0 mt-3 w-64 bg-gray-800 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] border border-gray-700 py-2 z-50 transform origin-top-right transition-all animate-in fade-in slide-in-from-top-2">
+                    <div className="px-5 py-4 border-b border-gray-700 bg-gray-900/50">
+                      <p className="text-sm font-bold text-white truncate">{workerUser?.name}</p>
+                      <p className="text-xs font-semibold text-blue-400 capitalize mt-1">{workerUser?.email}</p>
                     </div>
                     <div className="p-2">
                       <Link 
                         to="/profile" 
-                        className="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded-xl transition-colors mb-1"
+                        className="flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition-colors mb-1"
                       >
                         <User size={16} /> My Profile
                       </Link>
                       <button 
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 rounded-xl transition-colors"
+                        className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-lg transition-colors"
                       >
                         <LogOut size={16} /> Sign Out
                       </button>
@@ -463,6 +486,7 @@ const WorkerDashboard = () => {
           </div>
         </div>
       )}
+      <Footer />
     </div>
   );
 };

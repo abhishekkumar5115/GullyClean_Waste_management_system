@@ -9,6 +9,7 @@ import {
 } from 'recharts';
 import { LogOut, Users, Trash2, ShieldCheck, Activity, Target, TrendingUp, Cpu, Server, MapPin, Clock, AlertCircle, ArrowRight, CheckCircle2, LayoutDashboard } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import Footer from '../common/Footer';
 
 const StatusBadge = ({ status }) => {
   const map = {
@@ -71,31 +72,35 @@ const AdminDashboard = () => {
   const workerStatsPreview    = workerStats?.slice(0, 4) || [];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col">
 
-      {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
-        <div className="max-w-[1400px] mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-emerald-500 rounded-xl flex items-center justify-center shadow-md">
-              <ShieldCheck className="w-5 h-5 text-white" />
+      {/* Enterprise Top Navigation Bar */}
+      <header className="sticky top-0 z-50 bg-slate-900 border-b border-slate-800 shadow-lg">
+        <div className="max-w-[1400px] mx-auto px-6 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-11 h-11 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-500/20 border border-emerald-400/30">
+              <ShieldCheck className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-base font-bold text-slate-800 leading-none">GullyClean Admin</h1>
-              <p className="text-[10px] text-slate-400 mt-0.5 font-medium">Management Portal</p>
+              <h1 className="text-xl font-bold text-white tracking-tight leading-none">GullyClean</h1>
+              <p className="text-[11px] text-emerald-400 mt-1 font-bold uppercase tracking-widest">Admin Command Center</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-full">
-              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-              <span className="text-xs font-semibold text-emerald-700">System Online</span>
+          <div className="flex items-center gap-6">
+            <div className="hidden md:flex items-center gap-2.5 px-4 py-2 bg-slate-800/80 border border-slate-700 rounded-full">
+              <div className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </div>
+              <span className="text-xs font-bold text-slate-300 tracking-wide">SYSTEM SECURE</span>
             </div>
+            <div className="h-8 w-px bg-slate-700 hidden sm:block"></div>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-red-50 hover:text-red-600 rounded-lg text-sm font-semibold transition-all border border-slate-200 hover:border-red-200 text-slate-600"
+              className="group flex items-center gap-2.5 px-5 py-2.5 bg-slate-800 hover:bg-rose-500/10 hover:text-rose-400 rounded-xl text-sm font-bold transition-all border border-slate-700 hover:border-rose-500/30 text-slate-300"
             >
-              <LogOut size={15} />
+              <LogOut size={16} className="text-slate-400 group-hover:text-rose-400 transition-colors" />
               Sign Out
             </button>
           </div>
@@ -351,6 +356,7 @@ const AdminDashboard = () => {
         </div>
 
       </main>
+      <Footer />
     </div>
   );
 };

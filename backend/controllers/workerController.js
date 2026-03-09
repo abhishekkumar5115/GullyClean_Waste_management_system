@@ -27,6 +27,53 @@ const updateWorkerLocation = async (req, res) => {
     
     await user.save();
 
+    // If worker is active, check if there are any pending pickups nearby
+    if (user.isTracking && user.location.lat && user.location.lng) {
+      const pendingPickups = await Pickup.find({ status: 'pending', assignedTo: null });
+      
+      const getDistanceFromLatLonInKm = (lat1, lon1, lat2, lon2) => {
+          const R = 6371; 
+          const dLat = (lat2 - lat1) * (Math.PI / 180);
+          const dLon = (lon2 - lon1) * (Math.PI / 180);
+          const a = 
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * 
+            Math.sin(dLon / 2) * Math.sin(dLon / 2); 
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); 
+          return R * c; 
+      };
+
+      let newlyAssigned = 0;
+      for (let pickup of pendingPickups) {
+        let shouldAssign = false;
+
+        if (pickup.coordinates && pickup.coordinates.lat && pickup.coordinates.lng) {
+          // Has coordinates: assign only if within 5km
+          const distance = getDistanceFromLatLonInKm(
+            pickup.coordinates.lat, pickup.coordinates.lng,
+            user.location.lat, user.location.lng
+          );
+          if (distance <= 5) shouldAssign = true;
+        } else {
+          // No coordinates: assign to first available online worker
+          shouldAssign = true;
+        }
+
+        if (shouldAssign) {
+          pickup.assignedTo = user._id;
+          pickup.status = 'assigned';
+          await pickup.save();
+          newlyAssigned++;
+        }
+      }
+
+      return res.status(200).json({ 
+        message: 'Location updated successfully', 
+        location: user.location,
+        newlyAssigned 
+      });
+    }
+
     res.status(200).json({ message: 'Location updated successfully', location: user.location });
   } catch (error) {
     console.error('Error updating worker location:', error);

@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../store/authSlice';
 import { Recycle, LogIn, UserPlus, User, LogOut, LayoutDashboard, Truck, Trash2, Menu, X, MapPin, ChevronDown } from 'lucide-react';
+import InstallPWA from '../common/InstallPWA';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -108,6 +109,7 @@ const Header = () => {
 
             {/* User Actions */}
             <div className="flex items-center gap-4 pl-8 border-l border-gray-200/30">
+              <div className="hidden lg:block"><InstallPWA /></div>
               {user ? (
                 <div className="relative">
                   <button
@@ -194,9 +196,12 @@ const Header = () => {
         <div className="h-full flex flex-col p-6">
           <div className="flex items-center justify-between mb-8">
             <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-teal-600">Gully Clean</span>
-            <button onClick={() => setMobileMenuOpen(false)} className="p-2 text-gray-500 hover:bg-gray-100 rounded-full">
-              <X size={20} />
-            </button>
+            <div className="flex items-center gap-2">
+              <InstallPWA />
+              <button onClick={() => setMobileMenuOpen(false)} className="p-2 text-gray-500 hover:bg-gray-100 rounded-full">
+                <X size={20} />
+              </button>
+            </div>
           </div>
 
           {user && (

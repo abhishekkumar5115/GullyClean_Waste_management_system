@@ -21,22 +21,17 @@ const createPickup = async (req, res) => {
       bin.coordinates = coordinates; // Update existing bin with new coords
     }
 
-  // Assign to geographically nearest ONLINE worker (based on explicit tracking flag)
+  // Only look at ONLINE workers who have a valid location
   const allWorkers = await User.find({ role: 'worker' });
-  
   let workers = allWorkers.filter(w => 
       w.isTracking &&
       w.location && 
       (w.location.lat !== 0 || w.location.lng !== 0)
   );
   
-  // Fallback to all workers if no one is explicitly online
-  if (workers.length === 0) {
-      workers = allWorkers;
-  }
-  
   let assignedTo = null;
   let status = 'pending';
+  const MAX_ASSIGNMENT_DISTANCE_KM = 5; // 5km threshold
   
   if (workers.length > 0 && coordinates && coordinates.lat && coordinates.lng) {
       let nearestWorker = null;
@@ -70,20 +65,12 @@ const createPickup = async (req, res) => {
           }
       });
 
-      if (nearestWorker) {
+      // Only assign if the nearest worker is within the threshold distance
+      if (nearestWorker && minDistance <= MAX_ASSIGNMENT_DISTANCE_KM) {
           assignedTo = nearestWorker._id;
           status = 'assigned';
-      } else {
-          // Fallback to random if no worker has generated a location yet
-          const randomWorker = workers[Math.floor(Math.random() * workers.length)];
-          assignedTo = randomWorker._id;
-          status = 'assigned';
       }
-  } else if (workers.length > 0) {
-      // Fallback if bin location wasn't properly passed
-      const randomWorker = workers[Math.floor(Math.random() * workers.length)];
-      assignedTo = randomWorker._id;
-      status = 'assigned';
+      // Otherwise, remains 'pending'
   }
 
   const pickup = new Pickup({
