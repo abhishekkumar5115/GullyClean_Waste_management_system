@@ -46,9 +46,6 @@ app.use('/api/admin', require('./routes/adminRoutes'));
 app.use('/api/worker', require('./routes/workerRoutes'));
 app.use('/api/upload', require('./routes/uploadRoutes'));
 
-// Serve uploaded images statically
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
 // --- Deployment Setup ---
 // Serve static files from the React app in production
 if (process.env.NODE_ENV === 'production') {
